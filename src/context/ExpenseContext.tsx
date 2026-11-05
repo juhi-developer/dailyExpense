@@ -17,6 +17,8 @@ import {
   requestNotificationPermissions,
 } from '@/services/notificationService';
 
+import { useTheme } from '@/context/ThemeContext';
+
 interface ExpenseSummary {
   totalIncome: number;
   totalExpense: number;
@@ -54,8 +56,8 @@ interface ExpenseContextType {
 const ExpenseContext = createContext<ExpenseContextType | undefined>(undefined);
 
 export function ExpenseProvider({ children }: { children: React.ReactNode }) {
+  const { themeMode, setThemeMode } = useTheme();
   const [currency, setCurrencyState] = useState<CurrencyConfig>(DEFAULT_CURRENCY);
-  const [themeMode, setThemeModeState] = useState<'light' | 'dark' | 'system'>('system');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [budgets, setBudgets] = useState<Budget[]>([]);
@@ -124,11 +126,6 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
           if (matched) setCurrencyState(matched);
         }
 
-        const savedTheme = await AsyncStorage.getItem('@daily_expense_theme');
-        if (savedTheme) {
-          setThemeModeState(savedTheme as any);
-        }
-
         await requestNotificationPermissions();
         await refreshData();
       } catch (e) {
@@ -141,11 +138,6 @@ export function ExpenseProvider({ children }: { children: React.ReactNode }) {
   const setCurrency = async (newCurrency: CurrencyConfig) => {
     setCurrencyState(newCurrency);
     await AsyncStorage.setItem('@daily_expense_currency', newCurrency.code);
-  };
-
-  const setThemeMode = async (mode: 'light' | 'dark' | 'system') => {
-    setThemeModeState(mode);
-    await AsyncStorage.setItem('@daily_expense_theme', mode);
   };
 
   const addTransaction = async (tx: Omit<Transaction, 'id'>) => {

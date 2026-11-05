@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
-import { Stack, DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { Stack, DarkTheme, DefaultTheme, ThemeProvider as NavigationThemeProvider } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider } from '@/context/AuthContext';
 import { ExpenseProvider } from '@/context/ExpenseContext';
-import { useTheme } from '@/hooks/use-theme';
+import { ThemeProvider as AppThemeProvider, useTheme } from '@/context/ThemeContext';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -16,7 +16,7 @@ function RootNavigator() {
   }, []);
 
   return (
-    <ThemeProvider value={theme.isDark ? DarkTheme : DefaultTheme}>
+    <NavigationThemeProvider value={theme.isDark ? DarkTheme : DefaultTheme}>
       <StatusBar style={theme.isDark ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
@@ -76,16 +76,18 @@ function RootNavigator() {
           }}
         />
       </Stack>
-    </ThemeProvider>
+    </NavigationThemeProvider>
   );
 }
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
-      <ExpenseProvider>
-        <RootNavigator />
-      </ExpenseProvider>
-    </AuthProvider>
+    <AppThemeProvider>
+      <AuthProvider>
+        <ExpenseProvider>
+          <RootNavigator />
+        </ExpenseProvider>
+      </AuthProvider>
+    </AppThemeProvider>
   );
 }

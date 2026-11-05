@@ -6,7 +6,6 @@ import {
   TouchableOpacity,
   TextInput,
   Modal,
-  Alert,
   SafeAreaView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +18,7 @@ import {
 } from '@/constants/categories';
 import { TransactionType } from '@/types';
 import { Spacing, BorderRadius, MaxContentWidth } from '@/constants/theme';
+import { confirmAction, showAlert } from '@/utils/dialog';
 
 export default function CategoriesScreen() {
   const theme = useTheme();
@@ -38,7 +38,7 @@ export default function CategoriesScreen() {
 
   const handleCreateCategory = async () => {
     if (!newCatName.trim()) {
-      Alert.alert('Category Name Required', 'Please enter a name for the new category.');
+      showAlert('Category Name Required', 'Please enter a name for the new category.');
       return;
     }
 
@@ -53,9 +53,9 @@ export default function CategoriesScreen() {
 
       setModalVisible(false);
       setNewCatName('');
-      Alert.alert('Success', `"${newCatName}" category added.`);
+      showAlert('Success', `"${newCatName}" category added.`);
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to create category');
+      showAlert('Error', e.message || 'Failed to create category');
     } finally {
       setIsCreating(false);
     }
@@ -63,20 +63,18 @@ export default function CategoriesScreen() {
 
   const handleDelete = (id: string, name: string, isCustom?: boolean) => {
     if (!isCustom) {
-      Alert.alert('System Category', 'Default categories cannot be deleted.');
+      showAlert('System Category', 'Default categories cannot be deleted.');
       return;
     }
 
-    Alert.alert('Delete Category', `Are you sure you want to delete "${name}"?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteCategory(id);
-        },
+    confirmAction({
+      title: 'Delete Category',
+      message: `Are you sure you want to delete "${name}"?`,
+      confirmText: 'Delete',
+      onConfirm: async () => {
+        await deleteCategory(id);
       },
-    ]);
+    });
   };
 
   return (

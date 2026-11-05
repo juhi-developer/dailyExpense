@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   Switch,
-  Alert,
   Modal,
   TextInput,
   SafeAreaView,
@@ -21,6 +20,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { CURRENCIES } from '@/constants/currencies';
 import { downloadJsonBackup, restoreFromJson } from '@/services/backupService';
 import { apiService } from '@/services/api';
+import { confirmAction, showAlert } from '@/utils/dialog';
 import { Spacing, BorderRadius, MaxContentWidth } from '@/constants/theme';
 import { CurrencyConfig } from '@/types';
 
@@ -30,8 +30,6 @@ export default function SettingsScreen() {
   const {
     currency,
     setCurrency,
-    themeMode,
-    setThemeMode,
     notificationSettings,
     saveNotificationSettings,
     isBackendOnline,
@@ -54,10 +52,8 @@ export default function SettingsScreen() {
   // Restore JSON state
   const [restoreJsonInput, setRestoreJsonInput] = useState('');
 
-  const isDarkMode = themeMode === 'dark';
-
   const toggleDarkMode = (val: boolean) => {
-    setThemeMode(val ? 'dark' : 'light');
+    theme.setThemeMode(val ? 'dark' : 'light');
   };
 
   const handleCurrencySelect = async (c: CurrencyConfig) => {
@@ -67,12 +63,12 @@ export default function SettingsScreen() {
 
   const handleSaveProfile = async () => {
     if (!editName.trim()) {
-      Alert.alert('Error', 'Name cannot be empty.');
+      showAlert('Error', 'Name cannot be empty.');
       return;
     }
     await updateUser({ name: editName.trim() });
     setProfileModalVisible(false);
-    Alert.alert('Success', 'Profile updated successfully.');
+    showAlert('Success', 'Profile updated successfully.');
   };
 
   const handleTestAndSaveServer = async () => {
@@ -83,10 +79,10 @@ export default function SettingsScreen() {
       await refreshData();
 
       if (isOnline) {
-        Alert.alert('Success', 'Connected successfully to backend server!');
+        showAlert('Success', 'Connected successfully to backend server!');
         setServerModalVisible(false);
       } else {
-        Alert.alert(
+        showAlert(
           'Notice',
           'Server not reachable at this URL. The app will continue operating seamlessly in local offline storage mode.'
         );
@@ -101,38 +97,36 @@ export default function SettingsScreen() {
     try {
       await downloadJsonBackup();
     } catch (e: any) {
-      Alert.alert('Backup Error', e.message || 'Failed to download backup.');
+      showAlert('Backup Error', e.message || 'Failed to download backup.');
     }
   };
 
   const handleRestoreSubmit = async () => {
     try {
       if (!restoreJsonInput.trim()) {
-        Alert.alert('Error', 'Please paste valid backup JSON data.');
+        showAlert('Error', 'Please paste valid backup JSON data.');
         return;
       }
       await restoreFromJson(restoreJsonInput);
       await refreshData();
       setRestoreModalVisible(false);
       setRestoreJsonInput('');
-      Alert.alert('Success', 'Backup data restored successfully!');
+      showAlert('Success', 'Backup data restored successfully!');
     } catch {
-      Alert.alert('Restore Error', 'Invalid backup format or corrupted JSON.');
+      showAlert('Restore Error', 'Invalid backup format or corrupted JSON.');
     }
   };
 
   const handleLogout = () => {
-    Alert.alert('Account', 'Log out of your account or switch to another user?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Sign Out / Switch',
-        style: 'destructive',
-        onPress: async () => {
-          await logout();
-          router.push('/auth' as any);
-        },
+    confirmAction({
+      title: 'Sign Out',
+      message: 'Are you sure you want to sign out of your account?',
+      confirmText: 'Sign Out',
+      onConfirm: async () => {
+        await logout();
+        router.push('/auth' as any);
       },
-    ]);
+    });
   };
 
   return (
@@ -150,43 +144,59 @@ export default function SettingsScreen() {
 
           {/* Profile Card */}
           <View style={[styles.profileCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-            <View style={[styles.avatar, { backgroundColor: theme.primaryLight }]}>
-              <ThemedText style={[styles.avatarText, { color: theme.primary }]}>
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+            <View style={[styles.avatar, { backgroundColor: user ? theme.primaryLight : theme.backgroundElement }]}>
+              <ThemedText style={[styles.avatarText, { color: user ? theme.primary : theme.textSecondary }]}>
+                {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
               </ThemedText>
             </View>
 
             <View style={styles.profileInfo}>
-              <ThemedText style={styles.profileName}>{user?.name || 'Alex Johnson'}</ThemedText>
+              <ThemedText style={styles.profileName}>
+                {user ? user.name : 'Guest User'}
+              </ThemedText>
               <ThemedText style={[styles.profileEmail, { color: theme.textSecondary }]}>
-                {user?.email || 'demo@example.com'}
+                {user ? user.email : 'Not signed in'}
               </ThemedText>
             </View>
 
-            <TouchableOpacity
-              style={[styles.editProfileBtn, { backgroundColor: theme.backgroundElement }]}
-              onPress={() => {
-                setEditName(user?.name || '');
-                setProfileModalVisible(true);
-              }}
-            >
-              <Ionicons name="pencil" size={16} color={theme.text} />
-            </TouchableOpacity>
+            {user ? (
+              <TouchableOpacity
+                style={[styles.editProfileBtn, { backgroundColor: theme.backgroundElement }]}
+                onPress={() => {
+                  setEditName(user.name);
+                  setProfileModalVisible(true);
+                }}
+              >
+                <Ionicons name="pencil" size={16} color={theme.text} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={[styles.signInPill, { backgroundColor: theme.primary }]}
+                onPress={() => router.push('/auth' as any)}
+              >
+                <ThemedText style={styles.signInPillText}>Sign In</ThemedText>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Section: General Settings */}
           <ThemedText style={styles.sectionHeading}>General</ThemedText>
           <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-            {/* Dark Mode */}
+            {/* Dark Mode Switch */}
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: '#EEF2FF' }]}>
-                  <Ionicons name="moon-outline" size={18} color="#4F46E5" />
+                <View style={[styles.iconBox, { backgroundColor: theme.isDark ? '#312E81' : '#EEF2FF' }]}>
+                  <Ionicons name={theme.isDark ? 'moon' : 'sunny-outline'} size={18} color={theme.primary} />
                 </View>
-                <ThemedText style={styles.settingTitle}>Dark Mode</ThemedText>
+                <View>
+                  <ThemedText style={styles.settingTitle}>Dark Mode</ThemedText>
+                  <ThemedText style={[styles.settingSubtitle, { color: theme.textSecondary }]}>
+                    {theme.isDark ? 'Dark theme active' : 'Light theme active'}
+                  </ThemedText>
+                </View>
               </View>
               <Switch
-                value={isDarkMode}
+                value={theme.isDark}
                 onValueChange={toggleDarkMode}
                 trackColor={{ false: '#CBD5E1', true: theme.primary }}
               />
@@ -197,8 +207,8 @@ export default function SettingsScreen() {
             {/* Currency Selector */}
             <TouchableOpacity style={styles.settingRow} onPress={() => setCurrencyModalVisible(true)}>
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: '#ECFDF5' }]}>
-                  <Ionicons name="cash-outline" size={18} color="#10B981" />
+                <View style={[styles.iconBox, { backgroundColor: theme.successLight }]}>
+                  <Ionicons name="cash-outline" size={18} color={theme.success} />
                 </View>
                 <ThemedText style={styles.settingTitle}>Currency</ThemedText>
               </View>
@@ -218,8 +228,8 @@ export default function SettingsScreen() {
               onPress={() => router.push('/categories' as any)}
             >
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: '#FEF3C7' }]}>
-                  <Ionicons name="pricetags-outline" size={18} color="#F59E0B" />
+                <View style={[styles.iconBox, { backgroundColor: theme.warningLight }]}>
+                  <Ionicons name="pricetags-outline" size={18} color={theme.warning} />
                 </View>
                 <ThemedText style={styles.settingTitle}>Manage Categories</ThemedText>
               </View>
@@ -233,8 +243,8 @@ export default function SettingsScreen() {
             {/* Daily Expense Reminder */}
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: '#F0FDF4' }]}>
-                  <Ionicons name="alarm-outline" size={18} color="#16A34A" />
+                <View style={[styles.iconBox, { backgroundColor: theme.successLight }]}>
+                  <Ionicons name="alarm-outline" size={18} color={theme.success} />
                 </View>
                 <View>
                   <ThemedText style={styles.settingTitle}>Daily Expense Reminder</ThemedText>
@@ -255,8 +265,8 @@ export default function SettingsScreen() {
             {/* Budget Alerts (>80% / 100%) */}
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: '#FEF2F2' }]}>
-                  <Ionicons name="warning-outline" size={18} color="#EF4444" />
+                <View style={[styles.iconBox, { backgroundColor: theme.dangerLight }]}>
+                  <Ionicons name="warning-outline" size={18} color={theme.danger} />
                 </View>
                 <View>
                   <ThemedText style={styles.settingTitle}>Budget Overrun Alerts</ThemedText>
@@ -279,8 +289,8 @@ export default function SettingsScreen() {
             {/* Export Reports */}
             <TouchableOpacity style={styles.settingRow} onPress={() => setExportModalVisible(true)}>
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: '#F0F9FF' }]}>
-                  <Ionicons name="document-text-outline" size={18} color="#0284C7" />
+                <View style={[styles.iconBox, { backgroundColor: theme.primaryLight }]}>
+                  <Ionicons name="document-text-outline" size={18} color={theme.primary} />
                 </View>
                 <ThemedText style={styles.settingTitle}>Export PDF / CSV Statement</ThemedText>
               </View>
@@ -308,8 +318,8 @@ export default function SettingsScreen() {
               onPress={() => setRestoreModalVisible(true)}
             >
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: '#FFFBEB' }]}>
-                  <Ionicons name="cloud-upload-outline" size={18} color="#D97706" />
+                <View style={[styles.iconBox, { backgroundColor: theme.warningLight }]}>
+                  <Ionicons name="cloud-upload-outline" size={18} color={theme.warning} />
                 </View>
                 <ThemedText style={styles.settingTitle}>Restore from Backup</ThemedText>
               </View>
@@ -322,11 +332,11 @@ export default function SettingsScreen() {
           <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
             <TouchableOpacity style={styles.settingRow} onPress={() => setServerModalVisible(true)}>
               <View style={styles.settingLeft}>
-                <View style={[styles.iconBox, { backgroundColor: isBackendOnline ? '#DCFCE7' : '#FEF3C7' }]}>
+                <View style={[styles.iconBox, { backgroundColor: isBackendOnline ? theme.successLight : theme.warningLight }]}>
                   <Ionicons
                     name="server-outline"
                     size={18}
-                    color={isBackendOnline ? '#16A34A' : '#D97706'}
+                    color={isBackendOnline ? theme.success : theme.warning}
                   />
                 </View>
                 <View>
@@ -341,15 +351,35 @@ export default function SettingsScreen() {
           </View>
 
           {/* Account / Logout Button */}
-          <TouchableOpacity
-            style={[styles.logoutBtn, { borderColor: `${theme.danger}40`, backgroundColor: theme.dangerLight }]}
-            onPress={handleLogout}
-          >
-            <Ionicons name="log-out-outline" size={18} color={theme.danger} />
-            <ThemedText style={[styles.logoutText, { color: theme.danger }]}>
-              Switch Account / Sign In
-            </ThemedText>
-          </TouchableOpacity>
+          {user ? (
+            <TouchableOpacity
+              style={[
+                styles.logoutBtn,
+                { borderColor: `${theme.danger}40`, backgroundColor: theme.dangerLight },
+              ]}
+              onPress={handleLogout}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="log-out-outline" size={18} color={theme.danger} />
+              <ThemedText style={[styles.logoutText, { color: theme.danger }]}>
+                Sign Out ({user.name})
+              </ThemedText>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity
+              style={[
+                styles.logoutBtn,
+                { borderColor: theme.primary, backgroundColor: theme.primaryLight },
+              ]}
+              onPress={() => router.push('/auth' as any)}
+              activeOpacity={0.7}
+            >
+              <Ionicons name="log-in-outline" size={18} color={theme.primary} />
+              <ThemedText style={[styles.logoutText, { color: theme.primary }]}>
+                Sign In to Account
+              </ThemedText>
+            </TouchableOpacity>
+          )}
         </View>
       </ScrollView>
 
@@ -560,6 +590,16 @@ const styles = StyleSheet.create({
   editProfileBtn: {
     padding: 8,
     borderRadius: BorderRadius.md,
+  },
+  signInPill: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: BorderRadius.full,
+  },
+  signInPillText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 12,
   },
   sectionHeading: {
     fontSize: 13,

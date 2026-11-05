@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { ThemedText } from './themed-text';
@@ -8,6 +8,7 @@ import { useExpense } from '@/context/ExpenseContext';
 import { useTheme } from '@/hooks/use-theme';
 import { formatCurrency } from '@/constants/currencies';
 import { BorderRadius, Spacing } from '@/constants/theme';
+import { confirmAction } from '@/utils/dialog';
 
 interface TransactionItemProps {
   transaction: Transaction;
@@ -23,23 +24,17 @@ export function TransactionItem({ transaction, onPress, showActions = false }: T
   const formattedAmount = `${isIncome ? '+' : '-'}${formatCurrency(transaction.amount, currency)}`;
 
   const handleDelete = () => {
-    Alert.alert(
-      'Delete Transaction',
-      `Are you sure you want to delete this ${transaction.type} transaction for ${formatCurrency(
+    confirmAction({
+      title: 'Delete Transaction',
+      message: `Are you sure you want to delete this ${transaction.type} transaction for ${formatCurrency(
         transaction.amount,
         currency
       )}?`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteTransaction(transaction.id);
-          },
-        },
-      ]
-    );
+      confirmText: 'Delete',
+      onConfirm: async () => {
+        await deleteTransaction(transaction.id);
+      },
+    });
   };
 
   const handleEdit = () => {

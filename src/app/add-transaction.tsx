@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
   Platform,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -16,6 +15,7 @@ import { useExpense } from '@/context/ExpenseContext';
 import { useTheme } from '@/hooks/use-theme';
 import { TransactionType, PaymentMethod } from '@/types';
 import { Spacing, BorderRadius, MaxContentWidth } from '@/constants/theme';
+import { showAlert } from '@/utils/dialog';
 
 export default function AddTransactionScreen() {
   const theme = useTheme();
@@ -37,12 +37,12 @@ export default function AddTransactionScreen() {
   const handleSave = async () => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      Alert.alert('Invalid Amount', 'Please enter a valid amount greater than 0.');
+      showAlert('Invalid Amount', 'Please enter a valid amount greater than 0.');
       return;
     }
 
     if (!effectiveCategory) {
-      Alert.alert('Select Category', 'Please choose a category for this transaction.');
+      showAlert('Select Category', 'Please choose a category for this transaction.');
       return;
     }
 
@@ -65,7 +65,7 @@ export default function AddTransactionScreen() {
 
       router.back();
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to save transaction');
+      showAlert('Error', e.message || 'Failed to save transaction');
     } finally {
       setIsSubmitting(false);
     }

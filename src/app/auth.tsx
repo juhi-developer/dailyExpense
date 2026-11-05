@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ActivityIndicator,
-  Alert,
   Platform,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -18,6 +17,7 @@ import { useExpense } from '@/context/ExpenseContext';
 import { useTheme } from '@/hooks/use-theme';
 import { CURRENCIES } from '@/constants/currencies';
 import { Spacing, BorderRadius } from '@/constants/theme';
+import { showAlert } from '@/utils/dialog';
 
 export default function AuthScreen() {
   const theme = useTheme();
@@ -34,12 +34,12 @@ export default function AuthScreen() {
 
   const handleSubmit = async () => {
     if (!email.trim() || !password) {
-      Alert.alert('Validation Error', 'Email and password are required.');
+      showAlert('Validation Error', 'Email and password are required.');
       return;
     }
 
     if (mode === 'signup' && !name.trim()) {
-      Alert.alert('Validation Error', 'Please enter your full name.');
+      showAlert('Validation Error', 'Please enter your full name.');
       return;
     }
 
@@ -51,9 +51,9 @@ export default function AuthScreen() {
         await register(name.trim(), email.trim(), password, selectedCurrency);
       }
       await refreshData();
-      router.back();
+      router.replace('/(tabs)' as any);
     } catch (e: any) {
-      Alert.alert('Authentication Failed', e.message || 'Please check your credentials.');
+      showAlert('Authentication Failed', e.message || 'Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
@@ -64,9 +64,9 @@ export default function AuthScreen() {
     try {
       await login('demo@example.com', 'password123');
       await refreshData();
-      router.back();
+      router.replace('/(tabs)' as any);
     } catch (e: any) {
-      Alert.alert('Demo Error', e.message || 'Failed to login with demo account.');
+      showAlert('Demo Error', e.message || 'Failed to login with demo account.');
     } finally {
       setIsLoading(false);
     }

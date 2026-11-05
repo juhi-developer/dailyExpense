@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, Modal, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from './themed-text';
-import { useExpense } from '@/context/ExpenseContext';
-import { useAuth } from '@/context/AuthContext';
-import { useTheme } from '@/hooks/use-theme';
-import { exportToPdf, exportToCsv } from '@/services/exportService';
 import { BorderRadius, Spacing } from '@/constants/theme';
+import { useAuth } from '@/context/AuthContext';
+import { useExpense } from '@/context/ExpenseContext';
+import { useTheme } from '@/hooks/use-theme';
+import { exportToCsv, exportToPdf } from '@/services/exportService';
+import { showAlert } from '@/utils/dialog';
+import { Ionicons } from '@expo/vector-icons';
+import { useState } from 'react';
+import { ActivityIndicator, Modal, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from './themed-text';
 
 interface ExportModalProps {
   visible: boolean;
@@ -33,7 +34,7 @@ export function ExportModal({ visible, onClose }: ExportModalProps) {
       });
       onClose();
     } catch (e: any) {
-      Alert.alert('Export Error', e.message || 'Failed to generate PDF');
+      showAlert('Export Error', e.message || 'Failed to generate PDF');
     } finally {
       setIsExporting(false);
     }
@@ -45,7 +46,7 @@ export function ExportModal({ visible, onClose }: ExportModalProps) {
       await exportToCsv({ transactions });
       onClose();
     } catch (e: any) {
-      Alert.alert('Export Error', e.message || 'Failed to export CSV');
+      showAlert('Export Error', e.message || 'Failed to export CSV');
     } finally {
       setIsExporting(false);
     }

@@ -64,9 +64,9 @@ export default function DashboardScreen() {
           <View style={styles.headerRow}>
             <View>
               <ThemedText style={[styles.greeting, { color: theme.textSecondary }]}>
-                Welcome back,
+                {user ? 'Welcome back,' : 'Hello,'}
               </ThemedText>
-              <ThemedText style={styles.userName}>{user?.name || 'Guest'}</ThemedText>
+              <ThemedText style={styles.userName}>{user ? user.name : 'Guest User'}</ThemedText>
             </View>
 
             <View style={styles.headerRight}>

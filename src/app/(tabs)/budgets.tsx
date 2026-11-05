@@ -5,7 +5,6 @@ import {
   ScrollView,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
   Platform,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -15,6 +14,7 @@ import { BudgetProgressCard } from '@/components/BudgetProgressCard';
 import { useExpense } from '@/context/ExpenseContext';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing, BorderRadius, MaxContentWidth } from '@/constants/theme';
+import { confirmAction } from '@/utils/dialog';
 
 export default function BudgetsScreen() {
   const theme = useTheme();
@@ -46,22 +46,14 @@ export default function BudgetsScreen() {
   const warningCount = budgetProgress.filter(b => b.isWarning).length;
 
   const handleCardPress = (id: string, name: string) => {
-    Alert.alert('Manage Budget', `What would you like to do with the ${name} budget?`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Edit Limit',
-        onPress: () => {
-          router.push('/budget-modal' as any);
-        },
+    confirmAction({
+      title: 'Delete Budget',
+      message: `Are you sure you want to delete the ${name} budget?`,
+      confirmText: 'Delete',
+      onConfirm: async () => {
+        await deleteBudget(id);
       },
-      {
-        text: 'Delete Budget',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteBudget(id);
-        },
-      },
-    ]);
+    });
   };
 
   return (

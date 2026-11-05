@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
   Platform,
 } from 'react-native';
 import { router } from 'expo-router';
@@ -15,6 +14,7 @@ import { ThemedText } from '@/components/themed-text';
 import { useExpense } from '@/context/ExpenseContext';
 import { useTheme } from '@/hooks/use-theme';
 import { Spacing, BorderRadius, MaxContentWidth } from '@/constants/theme';
+import { showAlert } from '@/utils/dialog';
 
 export default function BudgetModalScreen() {
   const theme = useTheme();
@@ -31,12 +31,12 @@ export default function BudgetModalScreen() {
   const handleSave = async () => {
     const numLimit = parseFloat(limitAmount);
     if (isNaN(numLimit) || numLimit <= 0) {
-      Alert.alert('Invalid Limit', 'Please enter a valid budget limit greater than 0.');
+      showAlert('Invalid Limit', 'Please enter a valid budget limit greater than 0.');
       return;
     }
 
     if (!month.match(/^\d{4}-\d{2}$/)) {
-      Alert.alert('Invalid Month', 'Month must follow YYYY-MM format (e.g. 2026-11).');
+      showAlert('Invalid Month', 'Month must follow YYYY-MM format (e.g. 2026-11).');
       return;
     }
 
@@ -50,7 +50,7 @@ export default function BudgetModalScreen() {
 
       router.back();
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to save budget.');
+      showAlert('Error', e.message || 'Failed to save budget.');
     } finally {
       setIsSubmitting(false);
     }

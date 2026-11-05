@@ -6,7 +6,6 @@ import {
   TextInput,
   TouchableOpacity,
   SafeAreaView,
-  Alert,
   Platform,
 } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
@@ -16,6 +15,7 @@ import { useExpense } from '@/context/ExpenseContext';
 import { useTheme } from '@/hooks/use-theme';
 import { TransactionType, PaymentMethod } from '@/types';
 import { Spacing, BorderRadius, MaxContentWidth } from '@/constants/theme';
+import { confirmAction, showAlert } from '@/utils/dialog';
 
 export default function EditTransactionScreen() {
   const theme = useTheme();
@@ -38,13 +38,13 @@ export default function EditTransactionScreen() {
   const handleSave = async () => {
     const numAmount = parseFloat(amount);
     if (isNaN(numAmount) || numAmount <= 0) {
-      Alert.alert('Invalid Amount', 'Please enter a valid amount greater than 0.');
+      showAlert('Invalid Amount', 'Please enter a valid amount greater than 0.');
       return;
     }
 
     const cat = categories.find(c => c.id === selectedCategory);
     if (!cat) {
-      Alert.alert('Category Required', 'Please select a valid category.');
+      showAlert('Category Required', 'Please select a valid category.');
       return;
     }
 
@@ -64,24 +64,22 @@ export default function EditTransactionScreen() {
 
       router.back();
     } catch (e: any) {
-      Alert.alert('Error', e.message || 'Failed to update transaction.');
+      showAlert('Error', e.message || 'Failed to update transaction.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   const handleDelete = () => {
-    Alert.alert('Delete Transaction', 'Are you sure you want to delete this transaction permanently?', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteTransaction(txId);
-          router.back();
-        },
+    confirmAction({
+      title: 'Delete Transaction',
+      message: 'Are you sure you want to delete this transaction permanently?',
+      confirmText: 'Delete',
+      onConfirm: async () => {
+        await deleteTransaction(txId);
+        router.back();
       },
-    ]);
+    });
   };
 
   const paymentMethods: { key: PaymentMethod; label: string }[] = [
