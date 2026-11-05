@@ -19,10 +19,10 @@ export function DonutChart({ breakdown, totalExpense }: DonutChartProps) {
 
   if (!breakdown || breakdown.length === 0 || totalExpense === 0) {
     return (
-      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+      <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
         <View style={styles.emptyContainer}>
-          <Ionicons name="pie-chart-outline" size={40} color={theme.textTertiary} />
-          <ThemedText style={{ color: theme.textSecondary, marginTop: 8 }}>
+          <Ionicons name="pie-chart-outline" size={44} color={theme.textTertiary} />
+          <ThemedText style={{ color: theme.textSecondary, marginTop: 8, fontWeight: '500' }}>
             No expenses recorded for this period
           </ThemedText>
         </View>
@@ -31,11 +31,16 @@ export function DonutChart({ breakdown, totalExpense }: DonutChartProps) {
   }
 
   return (
-    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-      <ThemedText style={styles.cardTitle}>Spending by Category</ThemedText>
+    <View style={[styles.card, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
+      <View style={styles.titleRow}>
+        <ThemedText style={styles.cardTitle}>Spending by Category</ThemedText>
+        <ThemedText style={[styles.totalLabel, { color: theme.textSecondary }]}>
+          {formatCurrency(totalExpense, currency)}
+        </ThemedText>
+      </View>
 
       {/* Segmented Distribution Bar */}
-      <View style={styles.distributionBar}>
+      <View style={[styles.distributionBar, { backgroundColor: theme.cardBorder }]}>
         {breakdown.map((item, index) => {
           const widthPct = Math.max(item.percentage, 2);
           return (
@@ -43,8 +48,8 @@ export function DonutChart({ breakdown, totalExpense }: DonutChartProps) {
               key={`segment-${index}`}
               style={{
                 width: `${widthPct}%`,
-                backgroundColor: item.categoryColor || '#4F46E5',
-                height: 12,
+                backgroundColor: item.categoryColor || '#8B5CF6',
+                height: 14,
               }}
             />
           );
@@ -54,23 +59,28 @@ export function DonutChart({ breakdown, totalExpense }: DonutChartProps) {
       {/* Category Rows */}
       <View style={styles.listContainer}>
         {breakdown.map((item, index) => (
-          <View key={`cat-${index}`} style={styles.categoryRow}>
+          <View key={`cat-${index}`} style={[styles.categoryRow, { borderBottomColor: theme.cardBorder }]}>
             <View style={styles.leftCol}>
-              <View style={[styles.colorDot, { backgroundColor: item.categoryColor }]} />
-              <Ionicons
-                name={(item.categoryIcon as any) || 'wallet-outline'}
-                size={16}
-                color={item.categoryColor}
-                style={{ marginRight: 6 }}
-              />
+              <View
+                style={[
+                  styles.iconBubble,
+                  { backgroundColor: `${item.categoryColor || '#8B5CF6'}18` },
+                ]}
+              >
+                <Ionicons
+                  name={(item.categoryIcon as any) || 'wallet-outline'}
+                  size={15}
+                  color={item.categoryColor || theme.primary}
+                />
+              </View>
               <ThemedText style={styles.categoryName} numberOfLines={1}>
                 {item.categoryName}
               </ThemedText>
             </View>
 
             <View style={styles.rightCol}>
-              <View style={[styles.pctBadge, { backgroundColor: theme.backgroundElement }]}>
-                <ThemedText style={[styles.pctText, { color: theme.textSecondary }]}>
+              <View style={[styles.pctBadge, { backgroundColor: `${item.categoryColor || '#8B5CF6'}20` }]}>
+                <ThemedText style={[styles.pctText, { color: item.categoryColor || theme.primary }]}>
                   {item.percentage}%
                 </ThemedText>
               </View>
@@ -87,31 +97,46 @@ export function DonutChart({ breakdown, totalExpense }: DonutChartProps) {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.three,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.four,
     borderWidth: 1,
     marginVertical: Spacing.two,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  titleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'baseline',
+    marginBottom: Spacing.three,
   },
   cardTitle: {
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: Spacing.two,
+  },
+  totalLabel: {
+    fontSize: 14,
+    fontWeight: '700',
   },
   distributionBar: {
     flexDirection: 'row',
-    height: 12,
-    borderRadius: 6,
+    height: 14,
+    borderRadius: 7,
     overflow: 'hidden',
     marginBottom: Spacing.three,
   },
   listContainer: {
-    gap: Spacing.two,
+    gap: 4,
   },
   categoryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 4,
+    paddingVertical: Spacing.two,
+    borderBottomWidth: 0.5,
   },
   leftCol: {
     flexDirection: 'row',
@@ -119,11 +144,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: Spacing.two,
   },
-  colorDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    marginRight: 8,
+  iconBubble: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: Spacing.two,
   },
   categoryName: {
     fontSize: 14,
@@ -135,9 +162,9 @@ const styles = StyleSheet.create({
     gap: Spacing.two,
   },
   pctBadge: {
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: BorderRadius.sm,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.full,
   },
   pctText: {
     fontSize: 11,

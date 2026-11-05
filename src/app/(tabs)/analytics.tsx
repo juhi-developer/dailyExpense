@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
 import { BarChart } from '@/components/charts/BarChart';
 import { DonutChart } from '@/components/charts/DonutChart';
@@ -67,6 +68,17 @@ export default function AnalyticsScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      {/* Ambient Purple Gradient Glow */}
+      <LinearGradient
+        colors={
+          theme.isDark
+            ? ['rgba(124, 58, 237, 0.20)', 'rgba(79, 70, 229, 0.05)', 'transparent']
+            : ['rgba(124, 58, 237, 0.08)', 'rgba(79, 70, 229, 0.02)', 'transparent']
+        }
+        style={styles.ambientGlow}
+        pointerEvents="none"
+      />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
@@ -83,16 +95,31 @@ export default function AnalyticsScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.exportBtn, { backgroundColor: theme.primary }]}
               onPress={() => setExportModalVisible(true)}
+              activeOpacity={0.8}
             >
-              <Ionicons name="download-outline" size={18} color="#FFFFFF" />
-              <ThemedText style={styles.exportBtnText}>Export</ThemedText>
+              <LinearGradient
+                colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.exportBtn}
+              >
+                <Ionicons name="download-outline" size={18} color="#FFFFFF" />
+                <ThemedText style={styles.exportBtnText}>Export</ThemedText>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
 
           {/* Period Selector Tabs */}
-          <View style={[styles.periodTabs, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+          <View
+            style={[
+              styles.periodTabs,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.glassBorder || theme.cardBorder,
+              },
+            ]}
+          >
             {periods.map(p => {
               const isActive = period === p.key;
               return (
@@ -132,14 +159,17 @@ export default function AnalyticsScreen() {
                 <View
                   style={[
                     styles.metricCard,
-                    { backgroundColor: theme.card, borderColor: theme.cardBorder },
+                    {
+                      backgroundColor: theme.card,
+                      borderColor: theme.glassBorder || theme.cardBorder,
+                    },
                   ]}
                 >
                   <View style={styles.metricHeader}>
                     <ThemedText style={[styles.metricLabel, { color: theme.textSecondary }]}>
                       Total Income
                     </ThemedText>
-                    <Ionicons name="arrow-down-circle" size={16} color={theme.success} />
+                    <Ionicons name="arrow-down-circle" size={18} color={theme.success} />
                   </View>
                   <ThemedText style={[styles.metricValue, { color: theme.success }]}>
                     +{formatCurrency(reportData.totalIncome, currency)}
@@ -150,14 +180,17 @@ export default function AnalyticsScreen() {
                 <View
                   style={[
                     styles.metricCard,
-                    { backgroundColor: theme.card, borderColor: theme.cardBorder },
+                    {
+                      backgroundColor: theme.card,
+                      borderColor: theme.glassBorder || theme.cardBorder,
+                    },
                   ]}
                 >
                   <View style={styles.metricHeader}>
                     <ThemedText style={[styles.metricLabel, { color: theme.textSecondary }]}>
                       Total Expense
                     </ThemedText>
-                    <Ionicons name="arrow-up-circle" size={16} color={theme.danger} />
+                    <Ionicons name="arrow-up-circle" size={18} color={theme.danger} />
                   </View>
                   <ThemedText style={[styles.metricValue, { color: theme.danger }]}>
                     -{formatCurrency(reportData.totalExpense, currency)}
@@ -169,7 +202,10 @@ export default function AnalyticsScreen() {
               <View
                 style={[
                   styles.netCard,
-                  { backgroundColor: theme.card, borderColor: theme.cardBorder },
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.glassBorder || theme.cardBorder,
+                  },
                 ]}
               >
                 <View>
@@ -213,10 +249,15 @@ export default function AnalyticsScreen() {
                 <View
                   style={[
                     styles.insightCard,
-                    { backgroundColor: theme.backgroundElement },
+                    {
+                      backgroundColor: theme.card,
+                      borderColor: theme.glassBorder || theme.cardBorder,
+                    },
                   ]}
                 >
-                  <Ionicons name="bulb-outline" size={24} color={theme.warning} />
+                  <View style={[styles.insightIconContainer, { backgroundColor: `${theme.warning}18` }]}>
+                    <Ionicons name="bulb-outline" size={22} color={theme.warning} />
+                  </View>
                   <View style={styles.insightContent}>
                     <ThemedText style={styles.insightTitle}>Spending Insight</ThemedText>
                     <ThemedText style={[styles.insightDesc, { color: theme.textSecondary }]}>
@@ -250,6 +291,14 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 35 : 0,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 300,
   },
   container: {
     flex: 1,
@@ -279,10 +328,15 @@ const styles = StyleSheet.create({
   exportBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
     gap: 4,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   exportBtnText: {
     color: '#FFFFFF',
@@ -292,7 +346,7 @@ const styles = StyleSheet.create({
   periodTabs: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: 3,
     marginBottom: Spacing.three,
   },
@@ -300,7 +354,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 8,
     alignItems: 'center',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
   },
   periodTabText: {
     fontSize: 13,
@@ -314,14 +368,19 @@ const styles = StyleSheet.create({
   metricCard: {
     flex: 1,
     padding: Spacing.three,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   metricHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: 6,
   },
   metricLabel: {
     fontSize: 12,
@@ -335,16 +394,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.three,
-    borderRadius: BorderRadius.lg,
+    padding: Spacing.four,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     marginBottom: Spacing.three,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   netLabel: {
     fontSize: 12,
   },
   netAmount: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: '800',
     marginTop: 2,
   },
@@ -352,8 +416,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
   },
   savingsRateText: {
@@ -372,9 +436,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     padding: Spacing.three,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
     gap: Spacing.three,
     marginTop: Spacing.two,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  insightIconContainer: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   insightContent: {
     flex: 1,

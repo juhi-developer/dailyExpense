@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
 import { BalanceCard } from '@/components/BalanceCard';
 import { QuickActions } from '@/components/QuickActions';
@@ -46,6 +47,17 @@ export default function DashboardScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      {/* Ambient Purple Gradient Glow */}
+      <LinearGradient
+        colors={
+          theme.isDark
+            ? ['rgba(124, 58, 237, 0.22)', 'rgba(79, 70, 229, 0.08)', 'transparent']
+            : ['rgba(124, 58, 237, 0.10)', 'rgba(79, 70, 229, 0.03)', 'transparent']
+        }
+        style={styles.ambientGlow}
+        pointerEvents="none"
+      />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
@@ -76,6 +88,7 @@ export default function DashboardScreen() {
                   styles.statusBadge,
                   {
                     backgroundColor: isBackendOnline ? theme.successLight : theme.warningLight,
+                    borderColor: isBackendOnline ? `${theme.success}30` : `${theme.warning}30`,
                   },
                 ]}
               >
@@ -97,7 +110,13 @@ export default function DashboardScreen() {
 
               {/* Notification Bell */}
               <TouchableOpacity
-                style={[styles.bellButton, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}
+                style={[
+                  styles.bellButton,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.glassBorder || theme.cardBorder,
+                  },
+                ]}
                 onPress={() => router.push('/notifications' as any)}
                 activeOpacity={0.7}
               >
@@ -152,10 +171,10 @@ export default function DashboardScreen() {
               <View
                 style={[
                   styles.emptyCard,
-                  { backgroundColor: theme.card, borderColor: theme.cardBorder },
+                  { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder },
                 ]}
               >
-                <Ionicons name="receipt-outline" size={40} color={theme.textTertiary} />
+                <Ionicons name="receipt-outline" size={44} color={theme.textTertiary} />
                 <ThemedText style={[styles.emptyTitle, { color: theme.textSecondary }]}>
                   No transactions yet
                 </ThemedText>
@@ -185,6 +204,14 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 35 : 0,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 320,
   },
   container: {
     flex: 1,
@@ -225,6 +252,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: BorderRadius.full,
+    borderWidth: 1,
   },
   statusDot: {
     width: 6,
@@ -236,18 +264,23 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   bellButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
   },
   badgeDot: {
     position: 'absolute',
-    top: 4,
-    right: 4,
+    top: 3,
+    right: 3,
     minWidth: 16,
     height: 16,
     borderRadius: 8,
@@ -261,7 +294,7 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   sectionContainer: {
-    marginTop: Spacing.three,
+    marginTop: Spacing.four,
   },
   sectionHeader: {
     flexDirection: 'row',
@@ -279,11 +312,16 @@ const styles = StyleSheet.create({
   },
   emptyCard: {
     padding: Spacing.six,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginVertical: Spacing.two,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
   emptyTitle: {
     fontSize: 15,

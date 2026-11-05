@@ -1,13 +1,4 @@
-import { ThemedText } from '@/components/themed-text';
-import { TransactionItem } from '@/components/TransactionItem';
-import { formatCurrency } from '@/constants/currencies';
-import { BorderRadius, MaxContentWidth, Spacing } from '@/constants/theme';
-import { useExpense } from '@/context/ExpenseContext';
-import { useTheme } from '@/hooks/use-theme';
-import { TransactionType } from '@/types';
-import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Platform,
   SafeAreaView,
@@ -17,6 +8,16 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import { router } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { ThemedText } from '@/components/themed-text';
+import { TransactionItem } from '@/components/TransactionItem';
+import { formatCurrency } from '@/constants/currencies';
+import { BorderRadius, MaxContentWidth, Spacing } from '@/constants/theme';
+import { useExpense } from '@/context/ExpenseContext';
+import { useTheme } from '@/hooks/use-theme';
+import { TransactionType } from '@/types';
 
 export default function TransactionsScreen() {
   const theme = useTheme();
@@ -81,31 +82,63 @@ export default function TransactionsScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      {/* Ambient Purple Gradient Glow */}
+      <LinearGradient
+        colors={
+          theme.isDark
+            ? ['rgba(124, 58, 237, 0.20)', 'rgba(79, 70, 229, 0.05)', 'transparent']
+            : ['rgba(124, 58, 237, 0.08)', 'rgba(79, 70, 229, 0.02)', 'transparent']
+        }
+        style={styles.ambientGlow}
+        pointerEvents="none"
+      />
+
       <View style={styles.container}>
         <View style={styles.header}>
           <ThemedText style={styles.title}>Transactions</ThemedText>
           <View style={{ flexDirection: 'row', gap: 8 }}>
             <TouchableOpacity
-              style={[styles.addBtn, { backgroundColor: theme.backgroundElement }]}
+              style={[
+                styles.sortBtn,
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.glassBorder || theme.cardBorder,
+                },
+              ]}
               onPress={toggleSort}
             >
               <Ionicons name="swap-vertical" size={16} color={theme.text} />
-              <ThemedText style={[styles.addBtnText, { color: theme.text }]}>{sortLabel}</ThemedText>
+              <ThemedText style={[styles.sortBtnText, { color: theme.text }]}>{sortLabel}</ThemedText>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[styles.addBtn, { backgroundColor: theme.primary }]}
               onPress={() => router.push('/add-transaction' as any)}
+              activeOpacity={0.8}
             >
-              <Ionicons name="add" size={20} color="#FFFFFF" />
-              <ThemedText style={styles.addBtnText}>Add</ThemedText>
+              <LinearGradient
+                colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.addBtn}
+              >
+                <Ionicons name="add" size={18} color="#FFFFFF" />
+                <ThemedText style={styles.addBtnText}>Add</ThemedText>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
         </View>
 
-        {/* Search Bar */}
-        <View style={[styles.searchBar, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-          <Ionicons name="search" size={18} color={theme.textTertiary} />
+        {/* Search Bar with Glass Glow */}
+        <View
+          style={[
+            styles.searchBar,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.glassBorder || theme.cardBorder,
+            },
+          ]}
+        >
+          <Ionicons name="search" size={18} color={theme.primary} />
           <TextInput
             style={[styles.searchInput, { color: theme.text }]}
             placeholder="Search notes, category, amount..."
@@ -121,7 +154,15 @@ export default function TransactionsScreen() {
         </View>
 
         {/* Type Filter Tabs */}
-        <View style={[styles.typeTabs, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+        <View
+          style={[
+            styles.typeTabs,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.glassBorder || theme.cardBorder,
+            },
+          ]}
+        >
           {(['all', 'income', 'expense'] as const).map(type => {
             const isSelected = selectedType === type;
             return (
@@ -154,7 +195,7 @@ export default function TransactionsScreen() {
                             ? theme.danger
                             : theme.primary
                         : theme.textSecondary,
-                      fontWeight: isSelected ? '700' : '500',
+                      fontWeight: isSelected ? '700' : '600',
                     },
                   ]}
                 >
@@ -177,7 +218,7 @@ export default function TransactionsScreen() {
               styles.catChip,
               {
                 backgroundColor: selectedCategory === 'all' ? theme.primary : theme.card,
-                borderColor: selectedCategory === 'all' ? theme.primary : theme.cardBorder,
+                borderColor: selectedCategory === 'all' ? theme.primary : (theme.glassBorder || theme.cardBorder),
               },
             ]}
             onPress={() => setSelectedCategory('all')}
@@ -201,7 +242,7 @@ export default function TransactionsScreen() {
                   styles.catChip,
                   {
                     backgroundColor: isSelected ? cat.color : theme.card,
-                    borderColor: isSelected ? cat.color : theme.cardBorder,
+                    borderColor: isSelected ? cat.color : (theme.glassBorder || theme.cardBorder),
                   },
                 ]}
                 onPress={() => setSelectedCategory(cat.id)}
@@ -210,7 +251,7 @@ export default function TransactionsScreen() {
                   name={cat.icon as any}
                   size={14}
                   color={isSelected ? '#FFFFFF' : cat.color}
-                  style={{ marginRight: 4 }}
+                  style={{ marginRight: 5 }}
                 />
                 <ThemedText
                   style={[
@@ -226,7 +267,15 @@ export default function TransactionsScreen() {
         </ScrollView>
 
         {/* Filter Summary Banner */}
-        <View style={[styles.summaryBanner, { backgroundColor: theme.backgroundElement }]}>
+        <View
+          style={[
+            styles.summaryBanner,
+            {
+              backgroundColor: theme.card,
+              borderColor: theme.glassBorder || theme.cardBorder,
+            },
+          ]}
+        >
           <ThemedText style={[styles.summaryCount, { color: theme.textSecondary }]}>
             Showing {filteredTransactions.length} records
           </ThemedText>
@@ -271,6 +320,14 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 35 : 0,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 280,
   },
   container: {
     flex: 1,
@@ -289,13 +346,31 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '800',
   },
-  addBtn: {
+  sortBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    gap: 4,
+  },
+  sortBtnText: {
+    fontWeight: '700',
+    fontSize: 12,
+  },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
     gap: 4,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   addBtnText: {
     color: '#FFFFFF',
@@ -306,10 +381,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.three,
-    paddingVertical: Platform.OS === 'ios' ? 10 : 6,
+    paddingVertical: Platform.OS === 'ios' ? 10 : 7,
     marginBottom: Spacing.two,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   searchInput: {
     flex: 1,
@@ -319,15 +399,15 @@ const styles = StyleSheet.create({
   typeTabs: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: 3,
     marginBottom: Spacing.two,
   },
   typeTab: {
     flex: 1,
-    paddingVertical: 6,
+    paddingVertical: 7,
     alignItems: 'center',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
   },
   typeTabText: {
     fontSize: 13,
@@ -358,7 +438,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
     marginBottom: Spacing.two,
   },
   summaryCount: {

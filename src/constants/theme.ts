@@ -3,7 +3,11 @@ import { Platform } from 'react-native';
 export interface ThemeColors {
   primary: string;
   primaryLight: string;
+  primaryDark: string;
   accent: string;
+  accentLight: string;
+  primaryGlow: string;
+  accentGlow: string;
   success: string;
   successLight: string;
   danger: string;
@@ -16,6 +20,8 @@ export interface ThemeColors {
   background: string;
   card: string;
   cardBorder: string;
+  glassBackground: string;
+  glassBorder: string;
   backgroundElement: string;
   backgroundSelected: string;
   inputBackground: string;
@@ -24,62 +30,93 @@ export interface ThemeColors {
   tabBarBorder: string;
   headerBackground: string;
   shadow: string;
+  gradientHero: readonly [string, string, ...string[]];
+  gradientPurple: readonly [string, string, ...string[]];
+  gradientIncome: readonly [string, string, ...string[]];
+  gradientExpense: readonly [string, string, ...string[]];
+  gradientCard: readonly [string, string, ...string[]];
 }
 
 export const Colors: { light: ThemeColors; dark: ThemeColors } = {
   light: {
-    primary: '#4F46E5', // Indigo
-    primaryLight: '#EEF2FF',
-    accent: '#06B6D4',
-    success: '#10B981',
+    primary: '#7C3AED', // Electric Purple
+    primaryLight: '#F3EEFF',
+    primaryDark: '#5B21B6',
+    accent: '#C026D3', // Neon Fuchsia
+    accentLight: '#FDF2F8',
+    primaryGlow: 'rgba(124, 58, 237, 0.25)',
+    accentGlow: 'rgba(192, 38, 211, 0.2)',
+    success: '#10B981', // Neon Mint
     successLight: '#ECFDF5',
-    danger: '#EF4444',
-    dangerLight: '#FEF2F2',
+    danger: '#F43F5E', // Rose Coral
+    dangerLight: '#FFF1F2',
     warning: '#F59E0B',
     warningLight: '#FFFBEB',
-    text: '#0F172A',
-    textSecondary: '#64748B',
-    textTertiary: '#94A3B8',
-    background: '#F8FAFC',
+    text: '#0F0C24', // Deep midnight purple
+    textSecondary: '#6B6589',
+    textTertiary: '#9C95B8',
+    background: '#F8F7FF', // Soft lavender white
     card: '#FFFFFF',
-    cardBorder: '#E2E8F0',
-    backgroundElement: '#F1F5F9',
-    backgroundSelected: '#E2E8F0',
-    inputBackground: '#F8FAFC',
-    inputBorder: '#CBD5E1',
+    cardBorder: '#EDE9FE',
+    glassBackground: 'rgba(255, 255, 255, 0.88)',
+    glassBorder: 'rgba(124, 58, 237, 0.12)',
+    backgroundElement: '#F3EEFF',
+    backgroundSelected: '#E5DCFE',
+    inputBackground: '#FAF8FF',
+    inputBorder: '#DDD6FE',
     tabBar: '#FFFFFF',
-    tabBarBorder: '#E2E8F0',
-    headerBackground: '#FFFFFF',
-    shadow: 'rgba(15, 23, 42, 0.06)',
+    tabBarBorder: '#EDE9FE',
+    headerBackground: '#F8F7FF',
+    shadow: 'rgba(124, 58, 237, 0.08)',
+    gradientHero: ['#4F46E5', '#7C3AED', '#C026D3'],
+    gradientPurple: ['#6366F1', '#8B5CF6'],
+    gradientIncome: ['#059669', '#10B981'],
+    gradientExpense: ['#E11D48', '#F43F5E'],
+    gradientCard: ['#FFFFFF', '#FAF8FF'],
   },
   dark: {
-    primary: '#6366F1',
-    primaryLight: '#312E81',
-    accent: '#22D3EE',
-    success: '#34D399',
+    primary: '#8B5CF6', // Glowing Violet Purple
+    primaryLight: '#261B4E',
+    primaryDark: '#4C1D95',
+    accent: '#D946EF', // Electric Neon Magenta
+    accentLight: '#381640',
+    primaryGlow: 'rgba(139, 92, 246, 0.4)',
+    accentGlow: 'rgba(217, 70, 239, 0.35)',
+    success: '#34D399', // Mint glow
     successLight: '#064E3B',
-    danger: '#F87171',
-    dangerLight: '#7F1D1D',
+    danger: '#FB7185', // Coral glow
+    dangerLight: '#50131E',
     warning: '#FBBF24',
-    warningLight: '#78350F',
-    text: '#F8FAFC',
-    textSecondary: '#94A3B8',
-    textTertiary: '#64748B',
-    background: '#0B0F17',
-    card: '#161F30',
-    cardBorder: '#233044',
-    backgroundElement: '#1E293B',
-    backgroundSelected: '#334155',
-    inputBackground: '#0F172A',
-    inputBorder: '#334155',
-    tabBar: '#121926',
-    tabBarBorder: '#1E293B',
-    headerBackground: '#121926',
-    shadow: 'rgba(0, 0, 0, 0.4)',
+    warningLight: '#451A03',
+    text: '#FAF8FF',
+    textSecondary: '#C4B5FD', // Soft lavender text
+    textTertiary: '#867DA6',
+    background: '#090714', // Deep obsidian nebula purple
+    card: '#130E28',
+    cardBorder: '#271D4A',
+    glassBackground: 'rgba(22, 16, 46, 0.78)',
+    glassBorder: 'rgba(167, 139, 250, 0.22)',
+    backgroundElement: '#1B1438',
+    backgroundSelected: '#2A1F52',
+    inputBackground: '#110C24',
+    inputBorder: '#32255C',
+    tabBar: '#0C081F',
+    tabBarBorder: '#221945',
+    headerBackground: '#090714',
+    shadow: 'rgba(0, 0, 0, 0.6)',
+    gradientHero: ['#4338CA', '#7C3AED', '#C026D3'],
+    gradientPurple: ['#7C3AED', '#A855F7'],
+    gradientIncome: ['#047857', '#10B981'],
+    gradientExpense: ['#BE123C', '#F43F5E'],
+    gradientCard: ['#171133', '#110C24'],
   },
 };
 
-export type ThemeColor = keyof ThemeColors;
+export type StringThemeColor = {
+  [K in keyof ThemeColors]: ThemeColors[K] extends string ? K : never;
+}[keyof ThemeColors];
+
+export type ThemeColor = StringThemeColor;
 
 export const Spacing = {
   zero: 0,
@@ -94,10 +131,10 @@ export const Spacing = {
 } as const;
 
 export const BorderRadius = {
-  sm: 6,
-  md: 10,
-  lg: 16,
-  xl: 24,
+  sm: 8,
+  md: 14,
+  lg: 20,
+  xl: 28,
   full: 9999,
 };
 
@@ -119,5 +156,5 @@ export const Fonts = Platform.select({
   },
 });
 
-export const BottomTabInset = Platform.select({ ios: 70, android: 65, default: 60 });
+export const BottomTabInset = Platform.select({ ios: 72, android: 68, default: 64 });
 export const MaxContentWidth = 840;

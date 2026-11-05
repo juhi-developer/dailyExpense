@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
 import { ExportModal } from '@/components/ExportModal';
 import { useExpense } from '@/context/ExpenseContext';
@@ -131,6 +132,17 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      {/* Ambient Purple Gradient Glow */}
+      <LinearGradient
+        colors={
+          theme.isDark
+            ? ['rgba(124, 58, 237, 0.20)', 'rgba(79, 70, 229, 0.05)', 'transparent']
+            : ['rgba(124, 58, 237, 0.08)', 'rgba(79, 70, 229, 0.02)', 'transparent']
+        }
+        style={styles.ambientGlow}
+        pointerEvents="none"
+      />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
@@ -143,12 +155,17 @@ export default function SettingsScreen() {
           </View>
 
           {/* Profile Card */}
-          <View style={[styles.profileCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-            <View style={[styles.avatar, { backgroundColor: user ? theme.primaryLight : theme.backgroundElement }]}>
-              <ThemedText style={[styles.avatarText, { color: user ? theme.primary : theme.textSecondary }]}>
-                {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
-              </ThemedText>
-            </View>
+          <View style={[styles.profileCard, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
+            <LinearGradient
+              colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+              style={styles.avatarGlowRing}
+            >
+              <View style={[styles.avatar, { backgroundColor: theme.card }]}>
+                <ThemedText style={[styles.avatarText, { color: theme.primary }]}>
+                  {user?.name ? user.name.charAt(0).toUpperCase() : '?'}
+                </ThemedText>
+              </View>
+            </LinearGradient>
 
             <View style={styles.profileInfo}>
               <ThemedText style={styles.profileName}>
@@ -161,7 +178,7 @@ export default function SettingsScreen() {
 
             {user ? (
               <TouchableOpacity
-                style={[styles.editProfileBtn, { backgroundColor: theme.backgroundElement }]}
+                style={[styles.editProfileBtn, { backgroundColor: theme.backgroundElement, borderColor: theme.cardBorder }]}
                 onPress={() => {
                   setEditName(user.name);
                   setProfileModalVisible(true);
@@ -171,17 +188,23 @@ export default function SettingsScreen() {
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
-                style={[styles.signInPill, { backgroundColor: theme.primary }]}
+                style={styles.signInPillWrapper}
                 onPress={() => router.push('/auth' as any)}
+                activeOpacity={0.8}
               >
-                <ThemedText style={styles.signInPillText}>Sign In</ThemedText>
+                <LinearGradient
+                  colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                  style={styles.signInPill}
+                >
+                  <ThemedText style={styles.signInPillText}>Sign In</ThemedText>
+                </LinearGradient>
               </TouchableOpacity>
             )}
           </View>
 
           {/* Section: General Settings */}
           <ThemedText style={styles.sectionHeading}>General</ThemedText>
-          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
             {/* Dark Mode Switch */}
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
@@ -239,7 +262,7 @@ export default function SettingsScreen() {
 
           {/* Section: Notifications & Reminders */}
           <ThemedText style={styles.sectionHeading}>Notifications & Alerts</ThemedText>
-          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
             {/* Daily Expense Reminder */}
             <View style={styles.settingRow}>
               <View style={styles.settingLeft}>
@@ -285,7 +308,7 @@ export default function SettingsScreen() {
 
           {/* Section: Data Export & Backup */}
           <ThemedText style={styles.sectionHeading}>Data Export & Backup</ThemedText>
-          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
             {/* Export Reports */}
             <TouchableOpacity style={styles.settingRow} onPress={() => setExportModalVisible(true)}>
               <View style={styles.settingLeft}>
@@ -329,7 +352,7 @@ export default function SettingsScreen() {
 
           {/* Section: Backend & Server Config */}
           <ThemedText style={styles.sectionHeading}>Backend Connection (Node + MySQL)</ThemedText>
-          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+          <View style={[styles.settingGroup, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
             <TouchableOpacity style={styles.settingRow} onPress={() => setServerModalVisible(true)}>
               <View style={styles.settingLeft}>
                 <View style={[styles.iconBox, { backgroundColor: isBackendOnline ? theme.successLight : theme.warningLight }]}>
@@ -380,23 +403,33 @@ export default function SettingsScreen() {
               </ThemedText>
             </TouchableOpacity>
           )}
+
+          {/* App Version Info */}
+          <View style={styles.versionContainer}>
+            <ThemedText style={[styles.versionText, { color: theme.textTertiary }]}>
+              Daily Expense Tracker v1.0.0
+            </ThemedText>
+            <ThemedText style={[styles.versionSubtext, { color: theme.textTertiary }]}>
+              React Native • Expo SDK 58 • Node.js • MySQL
+            </ThemedText>
+          </View>
         </View>
       </ScrollView>
 
-      {/* Currency Modal */}
+      {/* Currency Picker Modal */}
       <Modal visible={currencyModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
             <View style={styles.modalHeader}>
               <ThemedText style={styles.modalTitle}>Select Currency</ThemedText>
               <TouchableOpacity onPress={() => setCurrencyModalVisible(false)}>
-                <Ionicons name="close" size={22} color={theme.text} />
+                <Ionicons name="close" size={24} color={theme.text} />
               </TouchableOpacity>
             </View>
 
-            <ScrollView style={{ maxHeight: 360 }}>
+            <ScrollView style={{ maxHeight: 350 }}>
               {CURRENCIES.map(c => {
-                const isSelected = currency.code === c.code;
+                const isSelected = c.code === currency.code;
                 return (
                   <TouchableOpacity
                     key={c.code}
@@ -406,12 +439,14 @@ export default function SettingsScreen() {
                     ]}
                     onPress={() => handleCurrencySelect(c)}
                   >
-                    <ThemedText style={styles.currencySymbol}>{c.symbol}</ThemedText>
-                    <View style={{ flex: 1, marginLeft: 12 }}>
-                      <ThemedText style={styles.currencyName}>{c.name}</ThemedText>
-                      <ThemedText style={[styles.currencyCode, { color: theme.textSecondary }]}>
-                        {c.code}
-                      </ThemedText>
+                    <View style={styles.currencyLeft}>
+                      <ThemedText style={styles.currencySymbol}>{c.symbol}</ThemedText>
+                      <View>
+                        <ThemedText style={styles.currencyName}>{c.name}</ThemedText>
+                        <ThemedText style={[styles.currencyCode, { color: theme.textSecondary }]}>
+                          {c.code}
+                        </ThemedText>
+                      </View>
                     </View>
                     {isSelected && (
                       <Ionicons name="checkmark-circle" size={20} color={theme.primary} />
@@ -425,45 +460,74 @@ export default function SettingsScreen() {
       </Modal>
 
       {/* Profile Edit Modal */}
-      <Modal visible={profileModalVisible} transparent animationType="fade">
+      <Modal visible={profileModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
-            <ThemedText style={styles.modalTitle}>Edit Profile Name</ThemedText>
+          <View style={[styles.modalContent, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
+            <View style={styles.modalHeader}>
+              <ThemedText style={styles.modalTitle}>Edit Profile Name</ThemedText>
+              <TouchableOpacity onPress={() => setProfileModalVisible(false)}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ThemedText style={[styles.inputLabel, { color: theme.textSecondary }]}>
+              Full Name
+            </ThemedText>
             <TextInput
-              style={[styles.textInput, { color: theme.text, borderColor: theme.inputBorder }]}
+              style={[
+                styles.modalInput,
+                {
+                  backgroundColor: theme.backgroundElement,
+                  color: theme.text,
+                  borderColor: theme.cardBorder,
+                },
+              ]}
               value={editName}
               onChangeText={setEditName}
               placeholder="Your Name"
               placeholderTextColor={theme.textTertiary}
             />
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalCancel, { borderColor: theme.cardBorder }]}
-                onPress={() => setProfileModalVisible(false)}
+
+            <TouchableOpacity
+              onPress={handleSaveProfile}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                style={styles.modalActionBtn}
               >
-                <ThemedText style={{ color: theme.textSecondary }}>Cancel</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalConfirm, { backgroundColor: theme.primary }]}
-                onPress={handleSaveProfile}
-              >
-                <ThemedText style={{ color: '#FFFFFF', fontWeight: '700' }}>Save</ThemedText>
-              </TouchableOpacity>
-            </View>
+                <ThemedText style={styles.modalActionBtnText}>Save Changes</ThemedText>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
       {/* Server URL Config Modal */}
-      <Modal visible={serverModalVisible} transparent animationType="fade">
+      <Modal visible={serverModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
-            <ThemedText style={styles.modalTitle}>Backend API Endpoint</ThemedText>
-            <ThemedText style={[styles.settingSubtitle, { color: theme.textSecondary, marginBottom: 12 }]}>
-              Enter your Express server URL. On a physical mobile device, replace &quot;localhost&quot; with your computer&apos;s LAN IP (e.g. http://192.168.1.50:5000/api).
+          <View style={[styles.modalContent, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
+            <View style={styles.modalHeader}>
+              <ThemedText style={styles.modalTitle}>Configure API Server</ThemedText>
+              <TouchableOpacity onPress={() => setServerModalVisible(false)}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ThemedText style={[styles.modalHelpText, { color: theme.textSecondary }]}>
+              Enter your Node.js + Express backend URL. For Expo on phone, use your machine&apos;s LAN
+              IP (e.g., http://192.168.1.100:5000/api).
             </ThemedText>
+
             <TextInput
-              style={[styles.textInput, { color: theme.text, borderColor: theme.inputBorder }]}
+              style={[
+                styles.modalInput,
+                {
+                  backgroundColor: theme.backgroundElement,
+                  color: theme.text,
+                  borderColor: theme.cardBorder,
+                },
+              ]}
               value={serverUrl}
               onChangeText={setServerUrl}
               placeholder="http://localhost:5000/api"
@@ -471,63 +535,78 @@ export default function SettingsScreen() {
               autoCapitalize="none"
               autoCorrect={false}
             />
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalCancel, { borderColor: theme.cardBorder }]}
-                onPress={() => setServerModalVisible(false)}
+
+            <TouchableOpacity
+              onPress={handleTestAndSaveServer}
+              disabled={testingConnection}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                style={styles.modalActionBtn}
               >
-                <ThemedText style={{ color: theme.textSecondary }}>Cancel</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalConfirm, { backgroundColor: theme.primary }]}
-                onPress={handleTestAndSaveServer}
-                disabled={testingConnection}
-              >
-                <ThemedText style={{ color: '#FFFFFF', fontWeight: '700' }}>
-                  {testingConnection ? 'Testing...' : 'Test & Save'}
+                <ThemedText style={styles.modalActionBtnText}>
+                  {testingConnection ? 'Testing Connection...' : 'Save & Connect'}
                 </ThemedText>
-              </TouchableOpacity>
-            </View>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Restore JSON Modal */}
-      <Modal visible={restoreModalVisible} transparent animationType="fade">
+      {/* Restore JSON Backup Modal */}
+      <Modal visible={restoreModalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
-          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
-            <ThemedText style={styles.modalTitle}>Restore Backup JSON</ThemedText>
+          <View style={[styles.modalContent, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
+            <View style={styles.modalHeader}>
+              <ThemedText style={styles.modalTitle}>Restore from Backup</ThemedText>
+              <TouchableOpacity onPress={() => setRestoreModalVisible(false)}>
+                <Ionicons name="close" size={24} color={theme.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ThemedText style={[styles.modalHelpText, { color: theme.textSecondary }]}>
+              Paste the exported JSON backup contents below to restore your transactions, categories,
+              and budgets.
+            </ThemedText>
+
             <TextInput
               style={[
-                styles.textInput,
-                { color: theme.text, borderColor: theme.inputBorder, height: 120, textAlignVertical: 'top' },
+                styles.modalTextArea,
+                {
+                  backgroundColor: theme.backgroundElement,
+                  color: theme.text,
+                  borderColor: theme.cardBorder,
+                },
               ]}
               value={restoreJsonInput}
               onChangeText={setRestoreJsonInput}
-              placeholder='Paste {"version": "1.0", "transactions": [...]} here...'
+              placeholder="Paste JSON here..."
               placeholderTextColor={theme.textTertiary}
               multiline
+              numberOfLines={6}
             />
-            <View style={styles.modalActions}>
-              <TouchableOpacity
-                style={[styles.modalCancel, { borderColor: theme.cardBorder }]}
-                onPress={() => setRestoreModalVisible(false)}
+
+            <TouchableOpacity
+              onPress={handleRestoreSubmit}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                style={styles.modalActionBtn}
               >
-                <ThemedText style={{ color: theme.textSecondary }}>Cancel</ThemedText>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.modalConfirm, { backgroundColor: theme.primary }]}
-                onPress={handleRestoreSubmit}
-              >
-                <ThemedText style={{ color: '#FFFFFF', fontWeight: '700' }}>Restore</ThemedText>
-              </TouchableOpacity>
-            </View>
+                <ThemedText style={styles.modalActionBtnText}>Restore Data</ThemedText>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
 
-      {/* Export Reports Modal */}
-      <ExportModal visible={exportModalVisible} onClose={() => setExportModalVisible(false)} />
+      {/* Export Modal */}
+      <ExportModal
+        visible={exportModalVisible}
+        onClose={() => setExportModalVisible(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -536,6 +615,14 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 35 : 0,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 300,
   },
   container: {
     flex: 1,
@@ -559,18 +646,28 @@ const styles = StyleSheet.create({
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: Spacing.three,
+    padding: Spacing.four,
     borderRadius: BorderRadius.xl,
     borderWidth: 1,
     marginBottom: Spacing.four,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  avatarGlowRing: {
+    width: 54,
+    height: 54,
+    borderRadius: 27,
+    padding: 2.5,
+    marginRight: Spacing.three,
   },
   avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    flex: 1,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: Spacing.three,
   },
   avatarText: {
     fontSize: 20,
@@ -581,19 +678,27 @@ const styles = StyleSheet.create({
   },
   profileName: {
     fontSize: 16,
-    fontWeight: '700',
+    fontWeight: '800',
   },
   profileEmail: {
     fontSize: 13,
     marginTop: 2,
   },
   editProfileBtn: {
-    padding: 8,
-    borderRadius: BorderRadius.md,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signInPillWrapper: {
+    borderRadius: BorderRadius.full,
+    overflow: 'hidden',
   },
   signInPill: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
   },
   signInPillText: {
@@ -605,21 +710,26 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '700',
     textTransform: 'uppercase',
-    color: '#94A3B8',
+    letterSpacing: 0.8,
     marginBottom: Spacing.two,
     marginTop: Spacing.two,
-    marginLeft: 4,
+    opacity: 0.7,
   },
   settingGroup: {
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
+    marginBottom: Spacing.four,
     overflow: 'hidden',
-    marginBottom: Spacing.three,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   settingRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
+    justifyContent: 'space-between',
     padding: Spacing.three,
   },
   settingLeft: {
@@ -629,9 +739,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconBox: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -653,36 +763,47 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   divider: {
-    height: 1,
+    height: 0.5,
     marginLeft: 56,
   },
   logoutBtn: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: Spacing.three,
-    borderRadius: BorderRadius.lg,
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 14,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
-    gap: Spacing.two,
-    marginTop: Spacing.three,
-    marginBottom: Spacing.five,
+    marginTop: Spacing.two,
+    marginBottom: Spacing.four,
   },
   logoutText: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '700',
+  },
+  versionContainer: {
+    alignItems: 'center',
+    paddingVertical: Spacing.two,
+  },
+  versionText: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  versionSubtext: {
+    fontSize: 11,
+    marginTop: 2,
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: Spacing.four,
+    justifyContent: 'flex-end',
   },
-  modalBox: {
-    width: '100%',
-    maxWidth: 420,
-    borderRadius: BorderRadius.xl,
+  modalContent: {
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
     padding: Spacing.four,
+    maxHeight: '80%',
+    borderWidth: 1,
   },
   modalHeader: {
     flexDirection: 'row',
@@ -692,50 +813,74 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: '800',
+  },
+  modalHelpText: {
+    fontSize: 13,
+    lineHeight: 18,
+    marginBottom: Spacing.three,
+  },
+  inputLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  modalInput: {
+    borderWidth: 1,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.three,
+    fontSize: 15,
+    marginBottom: Spacing.four,
+  },
+  modalTextArea: {
+    borderWidth: 1,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.three,
+    fontSize: 13,
+    height: 120,
+    textAlignVertical: 'top',
+    marginBottom: Spacing.four,
+  },
+  modalActionBtn: {
+    paddingVertical: 13,
+    borderRadius: BorderRadius.xl,
+    alignItems: 'center',
     marginBottom: Spacing.two,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  modalActionBtnText: {
+    color: '#FFFFFF',
+    fontWeight: '700',
+    fontSize: 15,
   },
   currencyRow: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    padding: Spacing.three,
+    paddingVertical: 12,
+    paddingHorizontal: Spacing.two,
     borderRadius: BorderRadius.md,
+  },
+  currencyLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.three,
   },
   currencySymbol: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '800',
     width: 32,
     textAlign: 'center',
   },
   currencyName: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '600',
   },
   currencyCode: {
     fontSize: 12,
-  },
-  textInput: {
-    borderWidth: 1,
-    borderRadius: BorderRadius.md,
-    padding: Spacing.three,
-    fontSize: 14,
-    marginVertical: Spacing.two,
-  },
-  modalActions: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    gap: Spacing.two,
-    marginTop: Spacing.three,
-  },
-  modalCancel: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-  },
-  modalConfirm: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: BorderRadius.md,
   },
 });

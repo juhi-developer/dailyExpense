@@ -22,6 +22,7 @@ export function TransactionItem({ transaction, onPress, showActions = false }: T
 
   const isIncome = transaction.type === 'income';
   const formattedAmount = `${isIncome ? '+' : '-'}${formatCurrency(transaction.amount, currency)}`;
+  const itemColor = transaction.categoryColor || (isIncome ? theme.success : theme.danger);
 
   const handleDelete = () => {
     confirmAction({
@@ -50,18 +51,26 @@ export function TransactionItem({ transaction, onPress, showActions = false }: T
         styles.container,
         {
           backgroundColor: theme.card,
-          borderColor: theme.cardBorder,
+          borderColor: theme.glassBorder || theme.cardBorder,
         },
       ]}
       onPress={onPress || handleEdit}
       activeOpacity={0.7}
     >
-      {/* Icon */}
-      <View style={[styles.iconContainer, { backgroundColor: `${transaction.categoryColor}20` }]}>
+      {/* Icon with glowing frosted border */}
+      <View
+        style={[
+          styles.iconContainer,
+          {
+            backgroundColor: `${itemColor}15`,
+            borderColor: `${itemColor}30`,
+          },
+        ]}
+      >
         <Ionicons
           name={(transaction.categoryIcon as any) || (isIncome ? 'wallet-outline' : 'cart-outline')}
           size={20}
-          color={transaction.categoryColor || (isIncome ? theme.success : theme.danger)}
+          color={itemColor}
         />
       </View>
 
@@ -125,19 +134,20 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: Spacing.three,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     marginBottom: Spacing.two,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   iconContainer: {
     width: 44,
     height: 44,
     borderRadius: 22,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.three,
@@ -179,9 +189,9 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   methodBadge: {
-    paddingHorizontal: 6,
+    paddingHorizontal: 7,
     paddingVertical: 2,
-    borderRadius: BorderRadius.sm,
+    borderRadius: BorderRadius.full,
   },
   methodText: {
     fontSize: 10,

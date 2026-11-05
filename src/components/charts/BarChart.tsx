@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '../themed-text';
 import { useTheme } from '@/hooks/use-theme';
 import { BorderRadius, Spacing } from '@/constants/theme';
@@ -20,7 +21,7 @@ export function BarChart({ data, height = 200 }: BarChartProps) {
 
   if (!data || data.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { height }]}>
+      <View style={[styles.emptyContainer, { height, backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
         <ThemedText style={{ color: theme.textSecondary }}>No data available for this period</ThemedText>
       </View>
     );
@@ -33,15 +34,21 @@ export function BarChart({ data, height = 200 }: BarChartProps) {
   );
 
   return (
-    <View style={[styles.wrapper, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+    <View style={[styles.wrapper, { backgroundColor: theme.card, borderColor: theme.glassBorder || theme.cardBorder }]}>
       {/* Legend */}
       <View style={styles.legendContainer}>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: theme.success }]} />
+          <LinearGradient
+            colors={theme.gradientIncome || ['#10B981', '#059669']}
+            style={styles.legendDot}
+          />
           <ThemedText style={[styles.legendText, { color: theme.textSecondary }]}>Income</ThemedText>
         </View>
         <View style={styles.legendItem}>
-          <View style={[styles.legendDot, { backgroundColor: theme.danger }]} />
+          <LinearGradient
+            colors={theme.gradientExpense || ['#F43F5E', '#BE123C']}
+            style={styles.legendDot}
+          />
           <ThemedText style={[styles.legendText, { color: theme.textSecondary }]}>Expense</ThemedText>
         </View>
       </View>
@@ -49,31 +56,35 @@ export function BarChart({ data, height = 200 }: BarChartProps) {
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         <View style={[styles.chartContainer, { height }]}>
           {data.map((item, index) => {
-            const incomeHeight = Math.max(4, (item.income / maxValue) * (height - 50));
-            const expenseHeight = Math.max(4, (item.expense / maxValue) * (height - 50));
+            const incomeHeight = Math.max(6, (item.income / maxValue) * (height - 50));
+            const expenseHeight = Math.max(6, (item.expense / maxValue) * (height - 50));
 
             return (
               <View key={`bar-${index}`} style={styles.groupContainer}>
                 {/* Dual Bars Container */}
                 <View style={styles.barsArea}>
                   {/* Income Bar */}
-                  <View
+                  <LinearGradient
+                    colors={theme.gradientIncome || ['#10B981', '#059669']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
                     style={[
                       styles.bar,
                       {
                         height: incomeHeight,
-                        backgroundColor: theme.success,
                       },
                     ]}
                   />
 
                   {/* Expense Bar */}
-                  <View
+                  <LinearGradient
+                    colors={theme.gradientExpense || ['#F43F5E', '#E11D48']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
                     style={[
                       styles.bar,
                       {
                         height: expenseHeight,
-                        backgroundColor: theme.danger,
                       },
                     ]}
                   />
@@ -97,16 +108,21 @@ export function BarChart({ data, height = 200 }: BarChartProps) {
 
 const styles = StyleSheet.create({
   wrapper: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.three,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.four,
     borderWidth: 1,
     marginVertical: Spacing.two,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
   },
   legendContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    gap: Spacing.three,
-    marginBottom: Spacing.two,
+    gap: Spacing.four,
+    marginBottom: Spacing.three,
   },
   legendItem: {
     flexDirection: 'row',
@@ -133,18 +149,21 @@ const styles = StyleSheet.create({
   },
   groupContainer: {
     alignItems: 'center',
-    width: 44,
+    width: 48,
   },
   barsArea: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 4,
+    gap: 5,
     height: '100%',
     paddingBottom: 22,
   },
   bar: {
     width: 14,
-    borderRadius: 4,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5,
+    borderBottomLeftRadius: 2,
+    borderBottomRightRadius: 2,
   },
   barLabel: {
     fontSize: 11,
@@ -160,7 +179,10 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   emptyContainer: {
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: Spacing.two,
   },
 });

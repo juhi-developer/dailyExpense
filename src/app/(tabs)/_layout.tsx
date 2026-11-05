@@ -1,11 +1,13 @@
 import React from 'react';
-import { Platform } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { Tabs } from 'expo-router/tabs';
 import { Ionicons } from '@expo/vector-icons';
+import { BlurView } from 'expo-blur';
 import { useTheme } from '@/hooks/use-theme';
 
 export default function TabLayout() {
   const theme = useTheme();
+  const isDark = theme.isDark;
 
   return (
     <Tabs
@@ -14,16 +16,25 @@ export default function TabLayout() {
         tabBarActiveTintColor: theme.primary,
         tabBarInactiveTintColor: theme.textSecondary,
         tabBarStyle: {
-          backgroundColor: theme.tabBar,
-          borderTopColor: theme.tabBarBorder,
-          elevation: 4,
+          backgroundColor: Platform.OS === 'ios' ? 'transparent' : (theme.glassBackground || theme.tabBar),
+          borderTopColor: theme.glassBorder || theme.tabBarBorder,
+          elevation: 8,
           height: Platform.OS === 'ios' ? 88 : 64,
           paddingBottom: Platform.OS === 'ios' ? 28 : 10,
           paddingTop: 8,
+          borderTopWidth: 1,
+          position: Platform.OS === 'ios' ? 'absolute' : 'relative',
         },
+        tabBarBackground: Platform.OS === 'ios' ? () => (
+          <BlurView
+            tint={isDark ? 'dark' : 'light'}
+            intensity={90}
+            style={StyleSheet.absoluteFill}
+          />
+        ) : undefined,
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '600',
+          fontWeight: '700',
         },
       }}
     >

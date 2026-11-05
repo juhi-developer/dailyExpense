@@ -1,10 +1,10 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { router } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { ThemedText } from './themed-text';
-import { useTheme } from '@/hooks/use-theme';
 import { BorderRadius, Spacing } from '@/constants/theme';
+import { useTheme } from '@/hooks/use-theme';
+import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { ThemedText } from './themed-text';
 
 interface QuickActionsProps {
   onOpenExport?: () => void;
@@ -21,9 +21,12 @@ export function QuickActions({ onOpenExport }: QuickActionsProps) {
         onPress={() => router.push({ pathname: '/add-transaction', params: { type: 'income' } } as any)}
         activeOpacity={0.7}
       >
-        <View style={[styles.iconWrapper, { backgroundColor: theme.successLight }]}>
-          <Ionicons name="arrow-down-circle" size={24} color={theme.success} />
-        </View>
+        <LinearGradient
+          colors={['#059669', '#10B981']}
+          style={styles.gradientIconWrapper}
+        >
+          <Ionicons name="arrow-down" size={20} color="#FFFFFF" />
+        </LinearGradient>
         <ThemedText style={styles.actionLabel}>+ Income</ThemedText>
       </TouchableOpacity>
 
@@ -33,9 +36,12 @@ export function QuickActions({ onOpenExport }: QuickActionsProps) {
         onPress={() => router.push({ pathname: '/add-transaction', params: { type: 'expense' } } as any)}
         activeOpacity={0.7}
       >
-        <View style={[styles.iconWrapper, { backgroundColor: theme.dangerLight }]}>
-          <Ionicons name="arrow-up-circle" size={24} color={theme.danger} />
-        </View>
+        <LinearGradient
+          colors={['#E11D48', '#F43F5E']}
+          style={styles.gradientIconWrapper}
+        >
+          <Ionicons name="arrow-up" size={20} color="#FFFFFF" />
+        </LinearGradient>
         <ThemedText style={styles.actionLabel}>+ Expense</ThemedText>
       </TouchableOpacity>
 
@@ -45,9 +51,12 @@ export function QuickActions({ onOpenExport }: QuickActionsProps) {
         onPress={() => router.push('/budget-modal' as any)}
         activeOpacity={0.7}
       >
-        <View style={[styles.iconWrapper, { backgroundColor: theme.primaryLight }]}>
-          <Ionicons name="pie-chart" size={22} color={theme.primary} />
-        </View>
+        <LinearGradient
+          colors={['#7C3AED', '#A855F7']}
+          style={styles.gradientIconWrapper}
+        >
+          <Ionicons name="pie-chart" size={19} color="#FFFFFF" />
+        </LinearGradient>
         <ThemedText style={styles.actionLabel}>Budget</ThemedText>
       </TouchableOpacity>
 
@@ -57,9 +66,12 @@ export function QuickActions({ onOpenExport }: QuickActionsProps) {
         onPress={() => (onOpenExport ? onOpenExport() : router.push('/analytics' as any))}
         activeOpacity={0.7}
       >
-        <View style={[styles.iconWrapper, { backgroundColor: '#ECFEFF' }]}>
-          <Ionicons name="download-outline" size={22} color="#0891B2" />
-        </View>
+        <LinearGradient
+          colors={['#0891B2', '#06B6D4']}
+          style={styles.gradientIconWrapper}
+        >
+          <Ionicons name="document-text" size={19} color="#FFFFFF" />
+        </LinearGradient>
         <ThemedText style={styles.actionLabel}>Export</ThemedText>
       </TouchableOpacity>
     </View>
@@ -77,26 +89,31 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     paddingVertical: Spacing.three,
-    paddingHorizontal: Spacing.two,
+    paddingHorizontal: Spacing.one,
     borderRadius: BorderRadius.lg,
     borderWidth: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.04,
-    shadowRadius: 6,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
     elevation: 2,
   },
-  iconWrapper: {
+  gradientIconWrapper: {
     width: 44,
     height: 44,
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.one,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   actionLabel: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: '700',
+    letterSpacing: -0.2,
   },
 });
-

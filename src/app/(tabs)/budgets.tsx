@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
 import { BudgetProgressCard } from '@/components/BudgetProgressCard';
 import { useExpense } from '@/context/ExpenseContext';
@@ -58,6 +59,17 @@ export default function BudgetsScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      {/* Ambient Purple Gradient Glow */}
+      <LinearGradient
+        colors={
+          theme.isDark
+            ? ['rgba(124, 58, 237, 0.20)', 'rgba(79, 70, 229, 0.05)', 'transparent']
+            : ['rgba(124, 58, 237, 0.08)', 'rgba(79, 70, 229, 0.02)', 'transparent']
+        }
+        style={styles.ambientGlow}
+        pointerEvents="none"
+      />
+
       <ScrollView
         style={styles.container}
         contentContainerStyle={styles.contentContainer}
@@ -74,16 +86,31 @@ export default function BudgetsScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.setBudgetBtn, { backgroundColor: theme.primary }]}
               onPress={() => router.push('/budget-modal' as any)}
+              activeOpacity={0.8}
             >
-              <Ionicons name="add" size={18} color="#FFFFFF" />
-              <ThemedText style={styles.setBudgetBtnText}>Set Budget</ThemedText>
+              <LinearGradient
+                colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.setBudgetBtn}
+              >
+                <Ionicons name="add" size={18} color="#FFFFFF" />
+                <ThemedText style={styles.setBudgetBtnText}>Set Budget</ThemedText>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
 
           {/* Month Switcher Bar */}
-          <View style={[styles.monthBar, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+          <View
+            style={[
+              styles.monthBar,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.glassBorder || theme.cardBorder,
+              },
+            ]}
+          >
             <TouchableOpacity onPress={handlePrevMonth} hitSlop={10} style={styles.monthArrow}>
               <Ionicons name="chevron-back" size={20} color={theme.text} />
             </TouchableOpacity>
@@ -98,7 +125,7 @@ export default function BudgetsScreen() {
 
           {/* Alert Warnings Banner if any */}
           {overBudgetCount > 0 && (
-            <View style={[styles.alertBanner, { backgroundColor: theme.dangerLight, borderColor: theme.danger }]}>
+            <View style={[styles.alertBanner, { backgroundColor: theme.dangerLight, borderColor: `${theme.danger}40` }]}>
               <Ionicons name="alert-circle" size={20} color={theme.danger} />
               <ThemedText style={[styles.alertText, { color: theme.danger }]}>
                 {overBudgetCount} budget{overBudgetCount > 1 ? 's have' : ' has'} exceeded the limit!
@@ -107,7 +134,7 @@ export default function BudgetsScreen() {
           )}
 
           {warningCount > 0 && overBudgetCount === 0 && (
-            <View style={[styles.alertBanner, { backgroundColor: theme.warningLight, borderColor: theme.warning }]}>
+            <View style={[styles.alertBanner, { backgroundColor: theme.warningLight, borderColor: `${theme.warning}40` }]}>
               <Ionicons name="warning-outline" size={20} color={theme.warning} />
               <ThemedText style={[styles.alertText, { color: theme.warning }]}>
                 {warningCount} budget{warningCount > 1 ? 's are' : ' is'} near the 80% threshold.
@@ -125,14 +152,22 @@ export default function BudgetsScreen() {
               />
             </View>
           ) : (
-            <View style={[styles.emptyBudgetCard, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
-              <Ionicons name="wallet-outline" size={36} color={theme.primary} />
+            <View
+              style={[
+                styles.emptyBudgetCard,
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.glassBorder || theme.cardBorder,
+                },
+              ]}
+            >
+              <Ionicons name="wallet-outline" size={38} color={theme.primary} />
               <ThemedText style={styles.emptyTitle}>No Overall Budget Set</ThemedText>
               <ThemedText style={[styles.emptySubtitle, { color: theme.textSecondary }]}>
                 Set a total monthly spending budget to keep all your expenses on track.
               </ThemedText>
               <TouchableOpacity
-                style={[styles.outlineBtn, { borderColor: theme.primary }]}
+                style={[styles.outlineBtn, { borderColor: theme.primary, backgroundColor: `${theme.primary}12` }]}
                 onPress={() => router.push('/budget-modal' as any)}
               >
                 <ThemedText style={{ color: theme.primary, fontWeight: '700' }}>
@@ -159,10 +194,13 @@ export default function BudgetsScreen() {
               <View
                 style={[
                   styles.emptyCategoryCard,
-                  { backgroundColor: theme.card, borderColor: theme.cardBorder },
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.glassBorder || theme.cardBorder,
+                  },
                 ]}
               >
-                <Ionicons name="pie-chart-outline" size={40} color={theme.textTertiary} />
+                <Ionicons name="pie-chart-outline" size={44} color={theme.textTertiary} />
                 <ThemedText style={[styles.emptyCategoryTitle, { color: theme.textSecondary }]}>
                   No category budgets yet
                 </ThemedText>
@@ -170,11 +208,18 @@ export default function BudgetsScreen() {
                   Assign individual limits for Food, Shopping, Bills, etc. to prevent overspending.
                 </ThemedText>
                 <TouchableOpacity
-                  style={[styles.addCatBudgetBtn, { backgroundColor: theme.primary }]}
                   onPress={() => router.push('/budget-modal' as any)}
+                  activeOpacity={0.8}
                 >
-                  <Ionicons name="add" size={16} color="#FFFFFF" />
-                  <ThemedText style={styles.addCatBudgetBtnText}>Add Category Budget</ThemedText>
+                  <LinearGradient
+                    colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles.addCatBudgetBtn}
+                  >
+                    <Ionicons name="add" size={16} color="#FFFFFF" />
+                    <ThemedText style={styles.addCatBudgetBtnText}>Add Category Budget</ThemedText>
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
             ) : (
@@ -197,6 +242,14 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 35 : 0,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 300,
   },
   container: {
     flex: 1,
@@ -226,10 +279,15 @@ const styles = StyleSheet.create({
   setBudgetBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
+    paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: BorderRadius.full,
     gap: 4,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 3,
   },
   setBudgetBtnText: {
     color: '#FFFFFF',
@@ -242,17 +300,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: Spacing.three,
     paddingVertical: Spacing.two,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     marginBottom: Spacing.three,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   monthArrow: {
-    padding: 4,
+    padding: 6,
   },
   monthCenter: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
+    gap: 8,
   },
   monthText: {
     fontSize: 15,
@@ -263,7 +326,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.two,
     padding: Spacing.three,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     marginBottom: Spacing.three,
   },
@@ -292,11 +355,16 @@ const styles = StyleSheet.create({
   },
   emptyBudgetCard: {
     padding: Spacing.five,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.three,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   emptyTitle: {
     fontSize: 16,
@@ -317,10 +385,15 @@ const styles = StyleSheet.create({
   },
   emptyCategoryCard: {
     padding: Spacing.five,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.04,
+    shadowRadius: 8,
+    elevation: 2,
   },
   emptyCategoryTitle: {
     fontSize: 15,
@@ -340,6 +413,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: BorderRadius.full,
     gap: 4,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
   },
   addCatBudgetBtnText: {
     color: '#FFFFFF',

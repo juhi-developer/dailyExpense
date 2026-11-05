@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
 import { useAuth } from '@/context/AuthContext';
 import { useExpense } from '@/context/ExpenseContext';
@@ -74,12 +75,27 @@ export default function AuthScreen() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>
+      {/* Ambient Purple Gradient Glow */}
+      <LinearGradient
+        colors={
+          theme.isDark
+            ? ['rgba(124, 58, 237, 0.22)', 'rgba(79, 70, 229, 0.06)', 'transparent']
+            : ['rgba(124, 58, 237, 0.10)', 'rgba(79, 70, 229, 0.03)', 'transparent']
+        }
+        style={styles.ambientGlow}
+        pointerEvents="none"
+      />
+
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} hitSlop={10} style={styles.closeBtn}>
-          <Ionicons name="close" size={24} color={theme.text} />
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={10}
+          style={[styles.closeBtn, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}
+        >
+          <Ionicons name="close" size={20} color={theme.text} />
         </TouchableOpacity>
         <ThemedText style={styles.headerTitle}>Account</ThemedText>
-        <View style={{ width: 24 }} />
+        <View style={{ width: 36 }} />
       </View>
 
       <ScrollView
@@ -90,9 +106,12 @@ export default function AuthScreen() {
         <View style={styles.wrapper}>
           {/* Brand Logo & Intro */}
           <View style={styles.brandHero}>
-            <View style={[styles.logoBox, { backgroundColor: theme.primary }]}>
+            <LinearGradient
+              colors={theme.gradientHero || ['#7C3AED', '#6D28D9', '#4F46E5']}
+              style={styles.logoBox}
+            >
               <Ionicons name="wallet" size={32} color="#FFFFFF" />
-            </View>
+            </LinearGradient>
             <ThemedText style={styles.brandTitle}>Daily Expense Tracker</ThemedText>
             <ThemedText style={[styles.brandSubtitle, { color: theme.textSecondary }]}>
               {mode === 'login'
@@ -102,7 +121,15 @@ export default function AuthScreen() {
           </View>
 
           {/* Mode Switcher Tabs */}
-          <View style={[styles.modeTabs, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}>
+          <View
+            style={[
+              styles.modeTabs,
+              {
+                backgroundColor: theme.card,
+                borderColor: theme.glassBorder || theme.cardBorder,
+              },
+            ]}
+          >
             <TouchableOpacity
               style={[styles.modeTab, mode === 'login' && { backgroundColor: theme.primary }]}
               onPress={() => setMode('login')}
@@ -138,7 +165,14 @@ export default function AuthScreen() {
               <View style={styles.fieldGroup}>
                 <ThemedText style={styles.fieldLabel}>Full Name</ThemedText>
                 <TextInput
-                  style={[styles.input, { backgroundColor: theme.card, borderColor: theme.cardBorder, color: theme.text }]}
+                  style={[
+                    styles.input,
+                    {
+                      backgroundColor: theme.card,
+                      borderColor: theme.glassBorder || theme.cardBorder,
+                      color: theme.text,
+                    },
+                  ]}
                   placeholder="e.g. Alex Johnson"
                   placeholderTextColor={theme.textTertiary}
                   value={name}
@@ -151,7 +185,14 @@ export default function AuthScreen() {
             <View style={styles.fieldGroup}>
               <ThemedText style={styles.fieldLabel}>Email Address</ThemedText>
               <TextInput
-                style={[styles.input, { backgroundColor: theme.card, borderColor: theme.cardBorder, color: theme.text }]}
+                style={[
+                  styles.input,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.glassBorder || theme.cardBorder,
+                    color: theme.text,
+                  },
+                ]}
                 placeholder="name@example.com"
                 placeholderTextColor={theme.textTertiary}
                 keyboardType="email-address"
@@ -165,7 +206,13 @@ export default function AuthScreen() {
             <View style={styles.fieldGroup}>
               <ThemedText style={styles.fieldLabel}>Password</ThemedText>
               <View
-                style={[styles.passwordRow, { backgroundColor: theme.card, borderColor: theme.cardBorder }]}
+                style={[
+                  styles.passwordRow,
+                  {
+                    backgroundColor: theme.card,
+                    borderColor: theme.glassBorder || theme.cardBorder,
+                  },
+                ]}
               >
                 <TextInput
                   style={[styles.passwordInput, { color: theme.text }]}
@@ -199,7 +246,7 @@ export default function AuthScreen() {
                             styles.currencyChip,
                             {
                               backgroundColor: isSelected ? theme.primary : theme.card,
-                              borderColor: isSelected ? theme.primary : theme.cardBorder,
+                              borderColor: isSelected ? theme.primary : (theme.glassBorder || theme.cardBorder),
                             },
                           ]}
                           onPress={() => setSelectedCurrency(c.code)}
@@ -223,32 +270,40 @@ export default function AuthScreen() {
 
             {/* Submit Button */}
             <TouchableOpacity
-              style={[styles.submitBtn, { backgroundColor: theme.primary }]}
               onPress={handleSubmit}
               disabled={isLoading}
               activeOpacity={0.8}
             >
-              {isLoading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <ThemedText style={styles.submitBtnText}>
-                  {mode === 'login' ? 'Sign In' : 'Create Account'}
-                </ThemedText>
-              )}
+              <LinearGradient
+                colors={theme.gradientPurple || ['#7C3AED', '#6D28D9']}
+                style={styles.submitBtn}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <ThemedText style={styles.submitBtnText}>
+                    {mode === 'login' ? 'Sign In' : 'Create Account'}
+                  </ThemedText>
+                )}
+              </LinearGradient>
             </TouchableOpacity>
 
             {/* Quick Demo Button */}
             <TouchableOpacity
               style={[
                 styles.demoBtn,
-                { backgroundColor: theme.backgroundElement, borderColor: theme.cardBorder },
+                {
+                  backgroundColor: theme.card,
+                  borderColor: theme.glassBorder || theme.cardBorder,
+                },
               ]}
               onPress={handleDemoLogin}
               disabled={isLoading}
+              activeOpacity={0.8}
             >
               <Ionicons name="sparkles" size={16} color={theme.primary} />
               <ThemedText style={[styles.demoBtnText, { color: theme.primary }]}>
-                1-Click Demo Login (demo@example.com)
+                Quick Demo Login
               </ThemedText>
             </TouchableOpacity>
           </View>
@@ -262,19 +317,32 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     paddingTop: Platform.OS === 'android' ? 35 : 0,
+    position: 'relative',
+  },
+  ambientGlow: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 320,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
+    paddingVertical: Spacing.three,
   },
   closeBtn: {
-    padding: 4,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
   },
   container: {
@@ -282,7 +350,7 @@ const styles = StyleSheet.create({
   },
   contentContainer: {
     paddingHorizontal: Spacing.four,
-    paddingBottom: Spacing.seven,
+    paddingBottom: Spacing.six,
     alignItems: 'center',
   },
   wrapper: {
@@ -294,44 +362,45 @@ const styles = StyleSheet.create({
     marginVertical: Spacing.four,
   },
   logoBox: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68,
+    height: 68,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: Spacing.two,
-    shadowColor: '#4F46E5',
+    marginBottom: Spacing.three,
+    shadowColor: '#7C3AED',
     shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.25,
+    shadowOpacity: 0.35,
     shadowRadius: 12,
     elevation: 6,
   },
   brandTitle: {
     fontSize: 22,
     fontWeight: '800',
-    marginBottom: 4,
+    letterSpacing: -0.3,
   },
   brandSubtitle: {
     fontSize: 13,
+    marginTop: 6,
     textAlign: 'center',
     lineHeight: 18,
-    paddingHorizontal: Spacing.two,
+    paddingHorizontal: Spacing.four,
   },
   modeTabs: {
     flexDirection: 'row',
     borderWidth: 1,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     padding: 3,
     marginBottom: Spacing.four,
   },
   modeTab: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
   },
   modeTabText: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: '700',
   },
   formContainer: {
@@ -341,59 +410,60 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   fieldLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    color: '#94A3B8',
+    fontSize: 13,
+    fontWeight: '600',
   },
   input: {
     borderWidth: 1,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     padding: Spacing.three,
-    fontSize: 14,
+    fontSize: 15,
   },
   passwordRow: {
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.three,
+    paddingVertical: Platform.OS === 'ios' ? 12 : 6,
   },
   passwordInput: {
     flex: 1,
-    paddingVertical: Spacing.three,
-    fontSize: 14,
+    fontSize: 15,
   },
   currencyChip: {
     paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingVertical: 7,
     borderRadius: BorderRadius.full,
     borderWidth: 1,
   },
   submitBtn: {
-    paddingVertical: Spacing.three,
-    borderRadius: BorderRadius.lg,
+    paddingVertical: 14,
+    borderRadius: BorderRadius.xl,
     alignItems: 'center',
-    justifyContent: 'center',
     marginTop: Spacing.two,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
   },
   submitBtnText: {
     color: '#FFFFFF',
-    fontSize: 15,
     fontWeight: '700',
+    fontSize: 15,
   },
   demoBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: Spacing.three,
-    borderRadius: BorderRadius.lg,
-    borderWidth: 1,
     gap: 6,
-    marginTop: Spacing.one,
+    paddingVertical: 12,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
   },
   demoBtnText: {
-    fontSize: 13,
     fontWeight: '700',
+    fontSize: 14,
   },
 });

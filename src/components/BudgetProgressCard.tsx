@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from './themed-text';
 import { BudgetProgress } from '@/types';
@@ -17,19 +18,19 @@ export function BudgetProgressCard({ progress, onPress }: BudgetProgressCardProp
   const theme = useTheme();
   const { currency } = useExpense();
 
-  // Progress Bar color logic
-  let progressColor: string = theme.success;
+  // Progress Bar gradient logic
+  let barGradient: readonly [string, string, ...string[]] = ['#059669', '#10B981'];
   let statusBadgeText = 'On Track';
-  let badgeBg: string = theme.successLight;
-  let badgeColor: string = theme.success;
+  let badgeBg = theme.successLight;
+  let badgeColor = theme.success;
 
   if (progress.isOverBudget) {
-    progressColor = theme.danger;
+    barGradient = ['#BE123C', '#F43F5E'];
     statusBadgeText = 'Exceeded';
     badgeBg = theme.dangerLight;
     badgeColor = theme.danger;
   } else if (progress.isWarning) {
-    progressColor = theme.warning;
+    barGradient = ['#D97706', '#FBBF24'];
     statusBadgeText = 'Near Limit';
     badgeBg = theme.warningLight;
     badgeColor = theme.warning;
@@ -43,7 +44,7 @@ export function BudgetProgressCard({ progress, onPress }: BudgetProgressCardProp
         styles.card,
         {
           backgroundColor: theme.card,
-          borderColor: progress.isOverBudget ? `${theme.danger}40` : theme.cardBorder,
+          borderColor: progress.isOverBudget ? `${theme.danger}60` : theme.cardBorder,
         },
       ]}
       onPress={onPress}
@@ -51,7 +52,7 @@ export function BudgetProgressCard({ progress, onPress }: BudgetProgressCardProp
     >
       <View style={styles.headerRow}>
         <View style={styles.catInfo}>
-          <View style={[styles.iconWrapper, { backgroundColor: `${progress.categoryColor}20` }]}>
+          <View style={[styles.iconWrapper, { backgroundColor: `${progress.categoryColor}25` }]}>
             <Ionicons
               name={(progress.categoryIcon as any) || 'wallet-outline'}
               size={18}
@@ -61,7 +62,7 @@ export function BudgetProgressCard({ progress, onPress }: BudgetProgressCardProp
           <View>
             <ThemedText style={styles.categoryName}>{progress.categoryName}</ThemedText>
             <ThemedText style={[styles.limitSubtext, { color: theme.textSecondary }]}>
-              Budget: {formatCurrency(progress.limitAmount, currency)}
+              Target: {formatCurrency(progress.limitAmount, currency)}
             </ThemedText>
           </View>
         </View>
@@ -71,15 +72,15 @@ export function BudgetProgressCard({ progress, onPress }: BudgetProgressCardProp
         </View>
       </View>
 
-      {/* Progress Bar */}
+      {/* Modern Gradient Progress Bar */}
       <View style={[styles.progressBarBg, { backgroundColor: theme.backgroundElement }]}>
-        <View
+        <LinearGradient
+          colors={barGradient}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
           style={[
             styles.progressBarFill,
-            {
-              width: `${cappedPercentage}%`,
-              backgroundColor: progressColor,
-            },
+            { width: `${cappedPercentage}%` },
           ]}
         />
       </View>
@@ -91,7 +92,9 @@ export function BudgetProgressCard({ progress, onPress }: BudgetProgressCardProp
           <ThemedText style={[styles.spentAmount, { color: theme.text }]}>
             {formatCurrency(progress.spentAmount, currency)}
           </ThemedText>{' '}
-          ({progress.percentage}%)
+          <ThemedText style={{ color: theme.primary, fontWeight: '700' }}>
+            ({progress.percentage}%)
+          </ThemedText>
         </ThemedText>
 
         <ThemedText
@@ -117,11 +120,11 @@ const styles = StyleSheet.create({
     padding: Spacing.three,
     borderWidth: 1,
     marginBottom: Spacing.three,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.03,
-    shadowRadius: 4,
-    elevation: 1,
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 10,
+    elevation: 2,
   },
   headerRow: {
     flexDirection: 'row',
@@ -136,9 +139,9 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   iconWrapper: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -148,25 +151,27 @@ const styles = StyleSheet.create({
   },
   limitSubtext: {
     fontSize: 12,
+    marginTop: 2,
   },
   badge: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
     borderRadius: BorderRadius.full,
   },
   badgeText: {
     fontSize: 11,
-    fontWeight: '700',
+    fontWeight: '800',
+    letterSpacing: 0.2,
   },
   progressBarBg: {
-    height: 8,
-    borderRadius: 4,
+    height: 9,
+    borderRadius: 5,
     overflow: 'hidden',
     marginVertical: Spacing.two,
   },
   progressBarFill: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: 5,
   },
   footerRow: {
     flexDirection: 'row',
@@ -181,6 +186,6 @@ const styles = StyleSheet.create({
   },
   remainingText: {
     fontSize: 12,
-    fontWeight: '700',
+    fontWeight: '800',
   },
 });
