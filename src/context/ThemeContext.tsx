@@ -1,6 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useSyncExternalStore,
+} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useColorScheme as useDeviceColorScheme } from 'react-native';
+import { useColorScheme as useDeviceColorScheme, Platform } from 'react-native';
 import { Colors, ThemeColors } from '@/constants/theme';
 
 export type ThemeMode = 'light' | 'dark' | 'system';
@@ -9,6 +17,7 @@ export interface ThemeContextValue extends ThemeColors {
   isDark: boolean;
   theme: 'light' | 'dark';
   themeMode: ThemeMode;
+  isHydrated: boolean;
   setThemeMode: (mode: ThemeMode) => Promise<void>;
   toggleTheme: () => Promise<void>;
 }
@@ -17,7 +26,15 @@ export const ThemeContext = createContext<ThemeContextValue | undefined>(undefin
 
 const THEME_STORAGE_KEY = '@daily_expense_theme_mode';
 
+const emptySubscribe = () => () => {};
+
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const isHydrated = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
   const deviceScheme = useDeviceColorScheme();
   const [themeMode, setThemeModeState] = useState<ThemeMode>('system');
 
@@ -50,11 +67,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [themeMode, setThemeMode]);
 
   const effectiveTheme: 'light' | 'dark' = useMemo(() => {
+    // On web, prevent hydration mismatch by aligning initial client render with SSR ('light')
+    if (Platform.OS === 'web' && !isHydrated) {
+      return 'light';
+    }
     if (themeMode === 'system') {
       return deviceScheme === 'dark' ? 'dark' : 'light';
     }
     return themeMode;
-  }, [themeMode, deviceScheme]);
+  }, [isHydrated, themeMode, deviceScheme]);
 
   const isDark = effectiveTheme === 'dark';
   const colors = Colors[effectiveTheme];
@@ -65,10 +86,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       isDark,
       theme: effectiveTheme,
       themeMode,
+      isHydrated,
       setThemeMode,
       toggleTheme,
     };
-  }, [colors, isDark, effectiveTheme, themeMode, setThemeMode, toggleTheme]);
+  }, [colors, isDark, effectiveTheme, themeMode, isHydrated, setThemeMode, toggleTheme]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
@@ -82,6 +104,7 @@ export function useTheme(): ThemeContextValue {
       isDark: false,
       theme: 'light',
       themeMode: 'light',
+      isHydrated: false,
       setThemeMode: async () => {},
       toggleTheme: async () => {},
     };

@@ -5,8 +5,33 @@ import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider } from '@/context/AuthContext';
 import { ExpenseProvider } from '@/context/ExpenseContext';
 import { ThemeProvider as AppThemeProvider, useTheme } from '@/context/ThemeContext';
+import { Colors } from '@/constants/theme';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+const customDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: Colors.dark.primary,
+    background: Colors.dark.background,
+    card: Colors.dark.card,
+    text: Colors.dark.text,
+    border: Colors.dark.cardBorder,
+  },
+};
+
+const customLightTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: Colors.light.primary,
+    background: Colors.light.background,
+    card: Colors.light.card,
+    text: Colors.light.text,
+    border: Colors.light.cardBorder,
+  },
+};
 
 function RootNavigator() {
   const theme = useTheme();
@@ -16,7 +41,7 @@ function RootNavigator() {
   }, []);
 
   return (
-    <NavigationThemeProvider value={theme.isDark ? DarkTheme : DefaultTheme}>
+    <NavigationThemeProvider value={theme.isDark ? customDarkTheme : customLightTheme}>
       <StatusBar style={theme.isDark ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
